@@ -1,0 +1,26 @@
+{
+  "name": "EDV · Escuela de Verano de Jaca",
+  "short_name": "EDV",
+  "description": "Control diario de asistencia, actividades y observaciones del grupo 2014 de la Escuela de Verano de Jaca.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#081014",
+  "theme_color": "#081014",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMTAlIiB5MT0iMCUiIHgyPSI5MCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTRCOEE2Ii8+PHN0b3Agb2Zmc2V0PSI1NSUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwRjlEOEIiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwQjVENTIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgcng9IjI2IiByeT0iMjYiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSI2MCIgeT0iNzIiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjaywgSW1wYWN0LCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjQ2IiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5FRFY8L3RleHQ+PHRleHQgeD0iNjAiIHk9IjkyIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZvbnQtc2l6ZT0iMTAiIGxldHRlci1zcGFjaW5nPSIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNzUpIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5KQUNBPC90ZXh0Pjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMTAlIiB5MT0iMCUiIHgyPSI5MCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTRCOEE2Ii8+PHN0b3Agb2Zmc2V0PSI1NSUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwRjlEOEIiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwQjVENTIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgcng9IjI2IiByeT0iMjYiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSI2MCIgeT0iNzIiIGZvbnQtZmFtaWx5PSJBcmlhbCBCbGFjaywgSW1wYWN0LCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjQ2IiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5FRFY8L3RleHQ+PHRleHQgeD0iNjAiIHk9IjkyIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZvbnQtc2l6ZT0iMTAiIGxldHRlci1zcGFjaW5nPSIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNzUpIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5KQUNBPC90ZXh0Pjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
