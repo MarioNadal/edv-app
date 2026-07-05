@@ -29,6 +29,8 @@ Al abrir la app verás el día de hoy. Usa las flechas `‹` `›` para moverte 
 
 **Asistencia:** aparecen solo los niños y niñas inscritos ese día concreto. Cada uno tiene un único botón que cambia de color y de texto cada vez que lo tocas, en este orden: Sin marcar → Presente → Ausente → Justificado → Sin marcar (y vuelta a empezar). Arriba del todo tienes un resumen con el número de presentes, ausentes, justificados y sin marcar del día.
 
+Si un día viene (o falta) todo el grupo, usa los botones "Marcar todo el grupo" (Presentes / Ausentes / Justif.) para marcar a todos de golpe, o "Quitar todas las marcas de hoy" para empezar de cero. Estas acciones piden confirmación porque sustituyen cualquier marca que ya hubieras puesto ese día.
+
 **Valoración colectiva:** puntúa el día con estrellas (1 a 5) y añade, si quieres, un comentario general sobre cómo ha ido el grupo.
 
 **Actividades:**

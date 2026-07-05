@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.10] — 2026-07-05
+
+### Añadido
+- Marcado masivo de asistencia: tres botones ("Presentes", "Ausentes", "Justif.") para poner de golpe a todos los niños/as inscritos ese día en el mismo estado, y un enlace para quitar todas las marcas del día. Pide confirmación antes de aplicar, porque sustituye cualquier marca ya puesta.
+
 ## [1.0.9] — 2026-07-05
 
 ### Cambiado
