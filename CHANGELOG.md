@@ -2,6 +2,17 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.4] — 2026-07-05
+
+### Corregido
+- La IA a veces sustituía el nombre literal de una actividad por el de otro juego parecido (p. ej. "Datchball" → "dodgeball"). Ahora se le indica explícitamente que use el nombre exacto tal cual lo escribe el monitor, sin traducirlo ni "corregirlo".
+
+## [1.0.3] — 2026-07-05
+
+### Corregido
+- `render()` reconstruía toda la pantalla en cada interacción (marcar asistencia, un toast, tocar dentro de un modal…) reiniciando el scroll y repitiendo la animación de entrada, dando sensación de recarga. Ahora el scroll y la animación de "Hoy"/vista solo se disparan al cambiar realmente de pantalla o de día, y el modal solo se desliza hacia arriba la primera vez que se abre.
+- Añadido feedback táctil (pequeña presión al tocar) en botones, pills de asistencia, pestañas, filas y estrellas.
+
 ## [1.0.2] — 2026-07-05
 
 ### Corregido

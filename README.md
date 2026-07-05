@@ -6,7 +6,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 
 - **Repo:** (pendiente de crear — repo privado recomendado, ver nota de privacidad más abajo)
 - **Grupo gestionado:** 2014 (curso de la Escuela de Verano 2026)
-- **Versión estable actual:** v1.0.2
+- **Versión estable actual:** v1.0.4
 
 ## 1. Qué hace
 
@@ -74,6 +74,8 @@ Esta app maneja nombres, asistencia y fotos de menores. Aunque los datos reales 
 |---|---|---|
 | v1.0.0 | ✅ Publicada | Asistencia, valoración, actividades + IA, fotos, export PDF/Excel |
 | v1.0.1 | ✅ Publicada | Visor/descarga de fotos, repaso visual de la pestaña "Hoy" |
-| v1.0.2 | ✅ Esta versión | Fix recarga en modal de niño/a, semanas sueltas ocultas si el mes está completo |
+| v1.0.2 | ✅ Publicada | Fix recarga en modal de niño/a, semanas sueltas ocultas si el mes está completo |
+| v1.0.3 | ✅ Publicada | Fix sensación de recarga en cada botón, feedback táctil |
+| v1.0.4 | ✅ Esta versión | La IA respeta el nombre literal de la actividad (no lo sustituye por otro juego) |
 | v1.1.0 | 💡 Idea | Gráficas de asistencia, gestión de varios grupos |
 | v2.0.0 | 💡 Idea | Backend ligero para sincronizar entre dispositivos del equipo de monitores |

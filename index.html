@@ -261,7 +261,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.3
+   EDV · Escuela de Verano de Jaca — v1.0.4
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -709,7 +709,9 @@ Extensión: un único párrafo de entre 70 y 140 palabras.
 
 Qué NO incluir: no menciones el nombre del grupo, del programa, la fecha, ni ninguna valoración numérica o puntuación interna — la observación se limita a describir la actividad de ese día, sin contexto administrativo. No incluyas saludos, firmas ni frases como "aquí tienes la observación": responde únicamente con el texto de la observación.
 
-Incidencias: si las notas del monitor mencionan explícitamente una incidencia puntual (por ejemplo, un retraso en una recogida, un pequeño conflicto o un imprevisto), añade un segundo párrafo breve explicando que se gestionó con calma y profesionalidad, contactando con las personas responsables si procede, sin dramatizar y sin inventar nombres si no se han indicado explícitamente en las notas. Si no hay ninguna incidencia en las notas, no añadas ese segundo párrafo.`;
+Incidencias: si las notas del monitor mencionan explícitamente una incidencia puntual (por ejemplo, un retraso en una recogida, un pequeño conflicto o un imprevisto), añade un segundo párrafo breve explicando que se gestionó con calma y profesionalidad, contactando con las personas responsables si procede, sin dramatizar y sin inventar nombres si no se han indicado explícitamente en las notas. Si no hay ninguna incidencia en las notas, no añadas ese segundo párrafo.
+
+Nombres propios: usa siempre el nombre de la actividad EXACTAMENTE como te lo indique el monitor, letra por letra. No lo traduzcas, no lo "corrijas" ni lo sustituyas por el nombre de otro juego parecido o más conocido (por ejemplo, si el monitor escribe "Datchball", escribe "Datchball", nunca "dodgeball" u otra variante). Lo mismo aplica a cualquier otro nombre propio que aparezca en las notas (lugares, materiales, nombres de juegos inventados por el programa, etc.): consérvalos tal cual, sin normalizarlos.`;
 
 async function generarObservacion(actId){
   const apiKey = localStorage.getItem(LSP+'apikey') || '';
@@ -732,7 +734,7 @@ Notas del monitor sobre lo ocurrido en esta actividad:
 """
 ${act.notas}
 """
-Redacta la observación de esta actividad siguiendo las indicaciones de estilo.`;
+Redacta la observación de esta actividad siguiendo las indicaciones de estilo. Importante: el nombre de la actividad es literalmente "${act.nombre}" — escríbelo tal cual, sin traducirlo ni cambiarlo por el de otro juego.`;
 
   try{
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
