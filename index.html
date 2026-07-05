@@ -526,6 +526,7 @@ function renderActividad(iso, act){
       ${act._generando ? '<span class="spin">⏳</span> Generando…' : '✨ Generar observación con IA'}
     </button>
     <div class="act-obs ${!act.obs?'empty-obs':''}">${act.obs ? esc(act.obs) : 'Aún no se ha generado ninguna observación para esta actividad.'}</div>
+    ${act.obs ? `<button class="btn-s" style="margin-top:6px" onclick="copiarObservacion('${act.id}')">📋 Copiar observación</button>` : ''}
     <div class="photo-strip">
       ${fotos.map(fid=>`<div class="photo-thumb-wrap"><img class="photo-thumb" data-photo-id="${fid}"><div class="photo-del" onclick="borrarFoto('${act.id}','${fid}')">×</div></div>`).join('')}
       <div class="photo-add" onclick="anadirFoto('${act.id}')">📷</div>
@@ -580,11 +581,47 @@ function borrarFoto(actId, fotoId){
   saveDays(); render();
 }
 
+function copiarAlPortapapeles(texto){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(texto);
+  }
+  // Fallback para navegadores sin Clipboard API
+  const ta = document.createElement('textarea');
+  ta.value = texto; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+  return Promise.resolve();
+}
+async function copiarObservacion(actId){
+  const day = getDay(S.fecha);
+  const act = day.actividades.find(a=>a.id===actId);
+  if(!act || !act.obs) return;
+  try{
+    await copiarAlPortapapeles(act.obs);
+    toast('Observación copiada');
+  }catch(e){
+    toast('No se pudo copiar. Revisa los permisos del navegador.');
+  }
+}
+
 // ── Generación de observaciones con IA (Claude API) ─────────────
-const STYLE_GUIDE = `Escribe la observación en español, en un único párrafo de entre 90 y 170 palabras, con un tono profesional y cálido propio de un informe diario de monitor de escuela de verano o campamento infantil/juvenil dirigido a las familias y a la coordinación del programa.
-Describe cómo se ha desarrollado la actividad indicada, destacando de forma natural (sin exagerar ni inventar) aspectos como la participación del grupo, la colaboración entre los niños y niñas, el ambiente y la actitud general.
-Si en las notas del monitor se menciona explícitamente alguna incidencia (un retraso en una recogida, un pequeño conflicto, una caída sin importancia, etc.), inclúyela con naturalidad y profesionalidad, explicando que se gestionó con calma, contactando con las personas responsables si procede, sin dramatizar.
-No inventes nombres, incidencias ni datos que no estén en las notas proporcionadas. No uses listas ni viñetas: solo prosa fluida. No incluyas saludos ni firmas, solo el párrafo de observación.`;
+// Estilo: informe institucional de monitor de tiempo libre, registro elevado
+// y valorativo. Toma las notas del monitor como base factual y las redacta
+// de forma más elaborada y pulida, sin inventar hechos. No hace referencia
+// al grupo/programa, a la fecha ni a ninguna valoración numérica interna:
+// solo describe cómo se ha desarrollado la actividad concreta de ese día.
+const STYLE_GUIDE = `Eres un monitor de tiempo libre que redacta la observación diaria de una actividad para el registro oficial de un programa (escuela de verano / campamento infantil-juvenil).
+
+Estilo y registro: elevado, valorativo e institucional, con vocabulario y giros como "se ha desarrollado de manera ejemplar", "ha resultado ser una experiencia sumamente positiva y enriquecedora", "superando las expectativas planteadas", "ha sido muy gratificante observar", "cabe destacar", "resulta especialmente destacable". Frases completas, bien construidas, en prosa fluida (nunca listas ni viñetas).
+
+Contenido: toma como base los hechos que te indique el monitor en sus notas (qué se ha hecho, cómo ha ido, cualquier detalle relevante) y redacta una versión más elaborada, pulida y extensa de esos mismos hechos. No inventes actividades, datos ni incidencias que no estén en las notas, pero sí puedes ampliar y embellecer la forma de contarlas. Destaca de forma natural, solo si encaja con lo descrito, aspectos como la actitud y disposición de los participantes, la colaboración y el compañerismo, la comunicación, el espíritu deportivo, el respeto por las normas o la organización del juego.
+
+Extensión: un único párrafo de entre 80 y 160 palabras.
+
+Qué NO incluir: no menciones el nombre del grupo, del programa, la fecha, ni ninguna valoración numérica o puntuación interna — la observación se limita a describir la actividad de ese día, sin contexto administrativo. No incluyas saludos, firmas ni frases como "aquí tienes la observación": responde únicamente con el texto de la observación.
+
+Incidencias: si las notas del monitor mencionan explícitamente una incidencia puntual (por ejemplo, un retraso en una recogida, un pequeño conflicto o un imprevisto), añade un segundo párrafo breve explicando que se gestionó con calma y profesionalidad, contactando con las personas responsables si procede, sin dramatizar y sin inventar nombres si no se han indicado explícitamente en las notas. Si no hay ninguna incidencia en las notas, no añadas ese segundo párrafo.`;
 
 async function generarObservacion(actId){
   const apiKey = localStorage.getItem(LSP+'apikey') || '';
@@ -602,16 +639,12 @@ async function generarObservacion(actId){
   act._generando = true; render();
 
   const model = localStorage.getItem(LSP+'aimodel') || 'claude-sonnet-5';
-  const userMsg = `Grupo: ${S.cfg.grupo} (${S.cfg.nombre})
-Fecha: ${fmtFechaEs(S.fecha)}
-Actividad: ${act.nombre}
-Notas del monitor sobre lo ocurrido hoy en esta actividad:
+  const userMsg = `Actividad: ${act.nombre}
+Notas del monitor sobre lo ocurrido en esta actividad:
 """
 ${act.notas}
 """
-Valoración colectiva del día (contexto opcional, estrellas de 1 a 5): ${day.valEstrellas || 'sin valorar'}
-
-Redacta la observación de esta actividad siguiendo exactamente las indicaciones de estilo.`;
+Redacta la observación de esta actividad siguiendo las indicaciones de estilo.`;
 
   try{
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -879,7 +912,7 @@ function renderAjustes(){
 
   html += `<div class="stg-sec">
     <div class="stg-sec-title">Generación de observaciones con IA</div>
-    <div class="warn-box">⚠️ La clave de API se guarda en este navegador (localStorage) y se usa para llamar directamente a la API de Claude desde la app. Cualquiera con acceso a este dispositivo o al código fuente de la página podría leerla. No la compartas ni la subas a un repositorio público. Usa una clave con límite de gasto bajo si es posible.</div>
+    <div class="warn-box">⚠️ La clave de API se guarda en este navegador (localStorage) y se usa para llamar directamente a la API de Claude desde la app. Cualquiera con acceso a este dispositivo o al código fuente de la página podría leerla. No la compartas ni la subas a un repositorio público. Configura un límite de gasto mensual bajo en platform.claude.com (Settings → Limits) para no llevarte sorpresas.</div>
     <div class="fg"><label class="fl">Clave de API (Anthropic)</label>
       <input class="fi" type="password" id="ajustes-apikey" placeholder="sk-ant-..." value="${esc(apiKey)}">
     </div>
