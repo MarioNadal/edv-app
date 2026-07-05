@@ -13,10 +13,11 @@ La app funciona offline salvo el botón "Generar observación con IA", que neces
 
 En **Niños**, pulsa el botón `+`. Para cada uno indica:
 
-- Nombre.
+- Nombre (se guarda automáticamente en mayúsculas).
 - Periodo de inscripción:
   - **Julio completo** / **Agosto completo**: actívalo si viene todos los días lectivos de ese mes.
   - **Semanas sueltas**: si no viene el mes entero, marca solo las semanas concretas en las que sí participa. No hace falta combinar esto con los interruptores de mes completo — usa una cosa u otra según el caso de cada niño/a.
+- **Observaciones**: para cualquier recordatorio o cambio puntual que te comenten (por ejemplo, "no vendrá hasta el día 15", "recogida solo por su madre", una alergia, etc.). Se muestra con 📌 tanto en la lista de Niños como junto a su nombre en la lista de Asistencia de "Hoy", para que lo tengas a la vista justo cuando pasas lista.
 - Foto (opcional).
 
 Puedes editar o eliminar a un niño/a en cualquier momento tocando su fila. Eliminarlo no borra los registros de asistencia ya guardados en días anteriores.

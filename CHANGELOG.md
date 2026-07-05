@@ -2,6 +2,15 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.7] — 2026-07-05
+
+### Añadido
+- Campo "Observaciones" en la ficha de cada niño/a (recordatorios, cambios puntuales de asistencia, alergias, etc.). Se muestra con 📌 tanto en la lista de "Niños" como, sobre todo, junto al nombre en la lista de Asistencia de "Hoy" para no olvidarlo al pasar lista.
+- Los nombres de niños/as se guardan siempre en mayúsculas (con migración automática de los que ya estuvieran guardados en minúscula).
+
+### Corregido — CRÍTICO
+- El nombre de un niño/a se borraba si, tras escribirlo, se tocaba "Julio completo", "Agosto completo" o una semana suelta antes de pulsar Guardar. El campo de nombre no estaba enlazado al estado de la app mientras se escribía, así que el siguiente render (al tocar cualquier otro botón del modal) lo reconstruía con el valor anterior (vacío). Corregido este input y, por el mismo motivo, el de nombre de actividad nueva y el de la clave de API en Ajustes.
+
 ## [1.0.6] — 2026-07-05
 
 ### Cambiado

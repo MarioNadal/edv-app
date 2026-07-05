@@ -176,10 +176,13 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .kid-avatar{width:38px;height:38px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:800;font-size:15px;color:var(--teal);flex-shrink:0;object-fit:cover;}
 .kid-name{font-weight:700;font-size:14.5px;}
 .kid-meta{font-size:11px;color:var(--td);margin-top:1px;}
+.kid-note{font-size:10.5px;color:var(--sun);font-weight:600;margin-top:3px;line-height:1.35;}
 
 .att-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;}
 .att-row:last-child{border-bottom:none;}
-.att-name{flex:1;font-weight:600;font-size:14.5px;}
+.att-name{flex:1;}
+.att-name-txt{font-weight:600;font-size:14.5px;}
+.att-note{font-size:10.5px;color:var(--sun);font-weight:600;margin-top:2px;line-height:1.35;}
 .att-opts{display:flex;gap:5px;}
 .att-pill{padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--td);font-size:11.5px;font-weight:700;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease,transform .1s ease;}
 .att-pill:active{transform:scale(.92);}
@@ -261,7 +264,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.6
+   EDV · Escuela de Verano de Jaca — v1.0.7
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -279,6 +282,19 @@ let S = {
   histMesFiltro: 'todos',
   modal: null,       // {tipo, ...datos}
 };
+
+// Migración: los nombres de niños/as se guardan siempre en mayúsculas.
+// Sube automáticamente a mayúsculas los que ya estuvieran guardados en minúscula.
+(function migrarNombresMayusculas(){
+  let cambiado = false;
+  S.kids.forEach(k=>{
+    if(k.nombre && k.nombre !== k.nombre.toUpperCase()){
+      k.nombre = k.nombre.toUpperCase();
+      cambiado = true;
+    }
+  });
+  if(cambiado) saveKids();
+})();
 
 function saveCfg(){ lsSet('cfg', S.cfg); }
 function saveKids(){ lsSet('kids', S.kids); }
@@ -551,7 +567,10 @@ function renderHoy(){
     ninos.forEach(k=>{
       const est = day.asistencia[k.id] || null;
       html += `<div class="att-row">
-        <div class="att-name">${esc(k.nombre)}</div>
+        <div class="att-name">
+          <div class="att-name-txt">${esc(k.nombre)}</div>
+          ${k.obs?`<div class="att-note">📌 ${esc(k.obs)}</div>`:''}
+        </div>
         <div class="att-opts">
           <button class="att-pill ${est==='presente'?'on-p':''}" onclick="marcarAsistencia('${k.id}','presente')">P</button>
           <button class="att-pill ${est==='ausente'?'on-a':''}" onclick="marcarAsistencia('${k.id}','ausente')">A</button>
@@ -825,6 +844,7 @@ function renderNinos(){
         <div style="flex:1">
           <div class="kid-name">${esc(k.nombre)}</div>
           <div class="kid-meta">${meta.join(' · ')}</div>
+          ${k.obs?`<div class="kid-note">📌 ${esc(k.obs)}</div>`:''}
         </div>
         <div style="color:var(--td)">›</div>
       </div>`;
@@ -837,7 +857,7 @@ function renderNinos(){
 }
 
 function abrirModalNino(kidId){
-  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null};
+  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null, obs:''};
   S.modal = {tipo:'nino', kid: JSON.parse(JSON.stringify(kid))};
   render();
 }
@@ -855,7 +875,7 @@ function guardarNino(){
   const nombre = document.getElementById('m-nino-nombre').value.trim();
   if(!nombre){ toast('Ponle un nombre al niño o niña'); return; }
   const k = S.modal.kid;
-  k.nombre = nombre;
+  k.nombre = nombre.toUpperCase();
   if(k.id){
     const idx = S.kids.findIndex(x=>x.id===k.id);
     S.kids[idx] = k;
@@ -1007,9 +1027,13 @@ function exportarExcel(){
 }
 
 // ================= VISTA: AJUSTES =================
+// _apiKeyDraft guarda lo que se está escribiendo en el campo de la clave de
+// API para que no se borre si se pulsa otro botón de esta pantalla (p. ej.
+// "Guardar" del bloque Programa) antes de guardar la clave.
+let _apiKeyDraft = null;
 function renderAjustes(){
   const logo = localStorage.getItem(LSP+'logo');
-  const apiKey = localStorage.getItem(LSP+'apikey') || '';
+  const apiKey = _apiKeyDraft !== null ? _apiKeyDraft : (localStorage.getItem(LSP+'apikey') || '');
   const aiModel = localStorage.getItem(LSP+'aimodel') || 'claude-sonnet-5';
 
   let html = `<div class="content">`;
@@ -1035,7 +1059,7 @@ function renderAjustes(){
     <div class="stg-sec-title">Generación de observaciones con IA</div>
     <div class="warn-box">⚠️ La clave de API se guarda en este navegador (localStorage) y se usa para llamar directamente a la API de Claude desde la app. Cualquiera con acceso a este dispositivo o al código fuente de la página podría leerla. No la compartas ni la subas a un repositorio público. Configura un límite de gasto mensual bajo en platform.claude.com (Settings → Limits) para no llevarte sorpresas.</div>
     <div class="fg"><label class="fl">Clave de API (Anthropic)</label>
-      <input class="fi" type="password" id="ajustes-apikey" placeholder="sk-ant-..." value="${esc(apiKey)}">
+      <input class="fi" type="password" id="ajustes-apikey" placeholder="sk-ant-..." value="${esc(apiKey)}" oninput="_apiKeyDraft=this.value">
     </div>
     <div class="fg"><label class="fl">Modelo</label>
       <select class="fi" id="ajustes-aimodel">
@@ -1073,6 +1097,7 @@ function guardarAjustesIA(){
   const model = document.getElementById('ajustes-aimodel').value;
   localStorage.setItem(LSP+'apikey', key);
   localStorage.setItem(LSP+'aimodel', model);
+  _apiKeyDraft = null;
   toast('Configuración de IA guardada');
 }
 function exportarBackupJSON(){
@@ -1105,10 +1130,10 @@ function renderModal(){
       <div class="mtitle">Nueva actividad</div>
       <div class="msub">Añade el nombre; después podrás escribir notas y generar la observación con IA.</div>
       <div class="fg"><label class="fl">Nombre de la actividad</label>
-        <input class="fi" id="m-act-nombre" placeholder="Ej: Datchball, piscina, taller de manualidades...">
+        <input class="fi" id="m-act-nombre" value="${esc(m.nombre||'')}" placeholder="Ej: Datchball, piscina, taller de manualidades..." oninput="S.modal.nombre=this.value">
       </div>
-      <button class="btn-p" onclick="confirmarNuevaActividad()">Añadir</button>
-      <button class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
+      <button type="button" class="btn-p" onclick="confirmarNuevaActividad()">Añadir</button>
+      <button type="button" class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
   }
 
   if(m.tipo==='nino'){
@@ -1124,7 +1149,7 @@ function renderModal(){
         ${k.foto?`<img src="${k.foto}">`:'<span style="font-size:26px">🧒</span>'}
       </div>
       <div class="fg"><label class="fl">Nombre</label>
-        <input class="fi" id="m-nino-nombre" value="${esc(k.nombre)}" placeholder="Nombre y apellido">
+        <input class="fi" id="m-nino-nombre" style="text-transform:uppercase" value="${esc(k.nombre)}" placeholder="Nombre y apellido" oninput="S.modal.kid.nombre=this.value">
       </div>
       <div class="fl" style="margin-bottom:8px">Periodo de inscripción</div>
       <div class="toggle-row">
@@ -1140,6 +1165,10 @@ function renderModal(){
       <div class="week-grid">
         ${semanasSueltas.map(s=>`<div class="week-chip ${(k.semanas||[]).includes(s.key)?'on':''}" onclick="toggleModalNinoSemana('${s.key}')">${s.mes==='julio'?'JUL':'AGO'} ${s.label}</div>`).join('')}
       </div>` : ''}
+      <div class="fg" style="margin-top:12px">
+        <label class="fl">Observaciones</label>
+        <textarea class="fi" id="m-nino-obs" placeholder="Ej: no vendrá hasta el día 15, recogida solo por su madre, alergia a los frutos secos..." oninput="S.modal.kid.obs=this.value">${esc(k.obs)}</textarea>
+      </div>
       <button type="button" class="btn-p" onclick="guardarNino()">Guardar</button>
       ${k.id?`<button type="button" class="btn-d" onclick="borrarNino()">Eliminar niño/a</button>`:''}
       <button type="button" class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
