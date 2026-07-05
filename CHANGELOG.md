@@ -2,6 +2,12 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.9] — 2026-07-05
+
+### Cambiado
+- Sustituidos los tres botones de asistencia (P/A/J) por un único botón por niño/a que cicla entre Sin marcar → Presente → Ausente → Justificado → Sin marcar, cambiando de color y de texto en cada toque.
+- El resumen superior de "Hoy" ahora muestra Presentes, Ausentes, Justificados y Sin marcar (antes incluía el nº de actividades, que ya se ve en su propia sección).
+
 ## [1.0.8] — 2026-07-05
 
 ### Cambiado

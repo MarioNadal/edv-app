@@ -2,7 +2,7 @@
 // IMPORTANTE: sube CACHE_VERSION en cada release, junto con la referencia
 // equivalente en index.html (registro del SW), para que los clientes con
 // la PWA instalada reciban la actualización.
-const CACHE_VERSION = 'edv-v1.0.8';
+const CACHE_VERSION = 'edv-v1.0.9';
 const APP_SHELL = [
   './',
   './index.html',

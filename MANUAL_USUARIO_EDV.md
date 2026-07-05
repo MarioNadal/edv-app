@@ -27,7 +27,7 @@ Puedes editar o eliminar a un niño/a en cualquier momento tocando su fila. Elim
 
 Al abrir la app verás el día de hoy. Usa las flechas `‹` `›` para moverte a otro día (por ejemplo, para completar un día que se te olvidó).
 
-**Asistencia:** aparecen solo los niños y niñas inscritos ese día concreto. Para cada uno, marca `P` (presente), `A` (ausente) o `J` (justificado). Tocar de nuevo el mismo botón lo deja sin marcar.
+**Asistencia:** aparecen solo los niños y niñas inscritos ese día concreto. Cada uno tiene un único botón que cambia de color y de texto cada vez que lo tocas, en este orden: Sin marcar → Presente → Ausente → Justificado → Sin marcar (y vuelta a empezar). Arriba del todo tienes un resumen con el número de presentes, ausentes, justificados y sin marcar del día.
 
 **Valoración colectiva:** puntúa el día con estrellas (1 a 5) y añade, si quieres, un comentario general sobre cómo ha ido el grupo.
 

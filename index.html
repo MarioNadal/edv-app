@@ -130,6 +130,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--tx);min-height:1
 .day-summary-val.green{color:var(--green);}
 .day-summary-val.red{color:var(--red);}
 .day-summary-val.teal{color:var(--teal);}
+.day-summary-val.amber{color:var(--amber);}
 .day-summary-lbl{font-size:8.5px;color:var(--td);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:3px;}
 
 .day-nav{display:flex;align-items:center;background:var(--s);padding:10px 6px;border-radius:12px;border:1px solid var(--border);margin-bottom:14px;gap:4px;}
@@ -185,12 +186,12 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .att-name-txt{font-weight:600;font-size:14.5px;}
 .att-note{font-size:10.5px;color:var(--sun);font-weight:600;margin-top:2px;line-height:1.35;}
 .att-note-just{color:var(--amber);}
-.att-opts{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:3px;gap:2px;}
-.att-pill{padding:6px 11px;border-radius:7px;border:none;background:transparent;color:var(--td);font-size:11.5px;font-weight:700;cursor:pointer;transition:background .15s ease,color .15s ease,transform .1s ease;}
-.att-pill:active{transform:scale(.92);}
-.att-pill.on-p{background:rgba(34,197,94,.22);color:var(--green);}
-.att-pill.on-a{background:rgba(239,68,68,.2);color:var(--red);}
-.att-pill.on-j{background:rgba(245,158,11,.2);color:var(--amber);}
+.att-cycle{min-width:100px;padding:9px 10px;border-radius:9px;border:none;font-size:12px;font-weight:800;font-family:var(--font-b);cursor:pointer;text-align:center;flex-shrink:0;transition:background .15s ease,color .15s ease,transform .1s ease;}
+.att-cycle:active{transform:scale(.95);}
+.att-cycle-none{background:var(--s2);color:var(--td);border:1px solid var(--border);}
+.att-cycle-presente{background:var(--green);color:#08150f;}
+.att-cycle-ausente{background:var(--red);color:#fff;}
+.att-cycle-justificado{background:var(--amber);color:#241705;}
 
 .week-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px;}
 .week-chip{padding:9px 8px;border-radius:9px;border:1px solid var(--border);background:var(--s2);cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:var(--td);transition:background .15s ease,border-color .15s ease,color .15s ease,transform .1s ease;}
@@ -266,7 +267,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.8
+   EDV · Escuela de Verano de Jaca — v1.0.9
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -560,11 +561,12 @@ function renderHoy(){
     const presentes = ninos.filter(k=>day.asistencia[k.id]==='presente').length;
     const ausentes = ninos.filter(k=>day.asistencia[k.id]==='ausente').length;
     const justificados = ninos.filter(k=>day.asistencia[k.id]==='justificado').length;
+    const sinMarcar = ninos.length - presentes - ausentes - justificados;
     html += `<div class="day-summary">
       <div class="day-summary-item"><div class="day-summary-val green">${presentes}</div><div class="day-summary-lbl">Presentes</div></div>
       <div class="day-summary-item"><div class="day-summary-val red">${ausentes}</div><div class="day-summary-lbl">Ausentes</div></div>
-      <div class="day-summary-item"><div class="day-summary-val">${justificados}</div><div class="day-summary-lbl">Justif.</div></div>
-      <div class="day-summary-item"><div class="day-summary-val teal">${day.actividades.length}</div><div class="day-summary-lbl">Activ.</div></div>
+      <div class="day-summary-item"><div class="day-summary-val amber">${justificados}</div><div class="day-summary-lbl">Justif.</div></div>
+      <div class="day-summary-item"><div class="day-summary-val">${sinMarcar}</div><div class="day-summary-lbl">Sin marcar</div></div>
     </div>`;
   }
 
@@ -576,17 +578,14 @@ function renderHoy(){
   } else {
     ninos.forEach(k=>{
       const est = day.asistencia[k.id] || null;
+      const einfo = attEstadoInfo(est);
       html += `<div class="att-row">
         <div class="att-name">
           <div class="att-name-txt">${esc(k.nombre)}</div>
           ${formatJustRange(k)?`<div class="att-note att-note-just">🟡 ${formatJustRange(k)}</div>`:''}
           ${k.obs?`<div class="att-note">📌 ${esc(k.obs)}</div>`:''}
         </div>
-        <div class="att-opts">
-          <button class="att-pill ${est==='presente'?'on-p':''}" onclick="marcarAsistencia('${k.id}','presente')">P</button>
-          <button class="att-pill ${est==='ausente'?'on-a':''}" onclick="marcarAsistencia('${k.id}','ausente')">A</button>
-          <button class="att-pill ${est==='justificado'?'on-j':''}" onclick="marcarAsistencia('${k.id}','justificado')">J</button>
-        </div>
+        <button class="att-cycle ${einfo.cls}" onclick="ciclarAsistencia('${k.id}')">${einfo.label}</button>
       </div>`;
     });
   }
@@ -639,9 +638,19 @@ function renderActividad(iso, act){
   return html;
 }
 
-function marcarAsistencia(kidId, estado){
+// Botón único de asistencia: cada toque avanza al siguiente estado del ciclo.
+const ATT_CICLO = [null, 'presente', 'ausente', 'justificado'];
+function attEstadoInfo(est){
+  if(est==='presente') return {cls:'att-cycle-presente', label:'Presente'};
+  if(est==='ausente') return {cls:'att-cycle-ausente', label:'Ausente'};
+  if(est==='justificado') return {cls:'att-cycle-justificado', label:'Justificado'};
+  return {cls:'att-cycle-none', label:'Sin marcar'};
+}
+function ciclarAsistencia(kidId){
   const day = getDay(S.fecha);
-  day.asistencia[kidId] = (day.asistencia[kidId]===estado) ? null : estado;
+  const actual = day.asistencia[kidId] || null;
+  const idx = ATT_CICLO.indexOf(actual);
+  day.asistencia[kidId] = ATT_CICLO[(idx+1) % ATT_CICLO.length];
   saveDays(); render();
 }
 function setValEstrellas(n){ const day=getDay(S.fecha); day.valEstrellas = (day.valEstrellas===n)?0:n; saveDays(); render(); }
