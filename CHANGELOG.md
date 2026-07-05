@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.6] — 2026-07-05
+
+### Cambiado
+- El botón "Guardar en galería" (antes "Descargar foto") ahora usa la hoja de compartir nativa del móvil (Web Share API) con la opción "Guardar imagen"/"Guardar en Fotos", que sí deja la foto en la galería del dispositivo. La descarga directa por enlace (`<a download>`) no era fiable en móvil — en iOS normalmente no hacía nada, y en Android acababa en la carpeta de Descargas, no en la galería. En ordenador se mantiene la descarga normal a la carpeta de descargas.
+
 ## [1.0.5] — 2026-07-05
 
 ### Corregido

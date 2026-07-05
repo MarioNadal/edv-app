@@ -33,7 +33,7 @@ Al abrir la app verás el día de hoy. Usa las flechas `‹` `›` para moverte 
 1. Pulsa "+ Añadir actividad" y ponle un nombre (por ejemplo, "Datchball", "Piscina", "Taller de manualidades").
 2. Escribe unas notas rápidas: qué se ha hecho, cómo ha ido, y cualquier incidencia relevante (un retraso en una recogida, un pequeño conflicto, etc.). Cuanto más claras sean las notas, mejor será la observación generada.
 3. Pulsa "✨ Generar observación con IA". En unos segundos aparecerá un párrafo redactado listo para compartir con las familias o guardar como registro. Puedes editar las notas y volver a generar cuantas veces quieras — cada generación sustituye a la anterior.
-4. Añade fotos de la actividad con el botón de la cámara. Toca cualquier miniatura para verla a tamaño completo, descargarla al dispositivo o eliminarla.
+4. Añade fotos de la actividad con el botón de la cámara. Toca cualquier miniatura para verla a tamaño completo. Con "💾 Guardar en galería" se abre la hoja de compartir del móvil: elige la opción "Guardar imagen" o "Guardar en Fotos" para que quede en la galería del dispositivo (por seguridad, ninguna web puede guardar ahí directamente sin ese paso). También puedes eliminar la foto desde el mismo visor.
 
 La IA nunca inventa incidencias que no hayas escrito en las notas: solo redacta a partir de lo que le indiques.
 

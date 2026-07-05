@@ -261,7 +261,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.5
+   EDV · Escuela de Verano de Jaca — v1.0.6
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -663,11 +663,34 @@ function verFoto(actId, fotoId){
 async function descargarFoto(fotoId){
   const url = await idbGet(fotoId);
   if(!url){ toast('No se pudo cargar la foto'); return; }
+
+  // En móvil (iOS/Android) usamos la hoja de compartir nativa con la opción
+  // "Guardar imagen"/"Guardar en Fotos": es el único camino fiable para que
+  // una web deje la foto en la galería del dispositivo (por seguridad, ninguna
+  // web puede escribir directamente en la galería sin que el usuario lo confirme).
+  if(navigator.share && navigator.canShare){
+    try{
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const file = new File([blob], `EDV_foto_${fotoId}.jpg`, {type: blob.type || 'image/jpeg'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file]});
+        toast('Elige "Guardar imagen" para añadirla a tu galería');
+        return;
+      }
+    }catch(e){
+      if(e && e.name==='AbortError') return; // el usuario cerró la hoja de compartir
+      // si falla por otro motivo, seguimos con la descarga normal de abajo
+    }
+  }
+
+  // Alternativa para ordenador o navegadores sin compartir archivos:
+  // se guarda en la carpeta de descargas habitual del navegador.
   const a = document.createElement('a');
   a.href = url;
   a.download = `EDV_foto_${fotoId}.jpg`;
   document.body.appendChild(a); a.click(); a.remove();
-  toast('Foto descargada');
+  toast('Foto descargada a la carpeta de descargas del navegador');
 }
 function borrarFotoDesdeVisor(){
   if(!S.modal || S.modal.tipo!=='foto') return;
@@ -1125,9 +1148,9 @@ function renderModal(){
   if(m.tipo==='foto'){
     inner = `<div class="mhandle"></div>
       <div class="photo-view-wrap"><img class="photo-view-img" data-photo-id="${m.fotoId}"></div>
-      <button class="btn-p" onclick="descargarFoto('${m.fotoId}')">⬇️ Descargar foto</button>
-      <button class="btn-d" onclick="borrarFotoDesdeVisor()">🗑️ Eliminar foto</button>
-      <button class="btn-s" onclick="cerrarModal()">Cerrar</button>`;
+      <button type="button" class="btn-p" onclick="descargarFoto('${m.fotoId}')">💾 Guardar en galería</button>
+      <button type="button" class="btn-d" onclick="borrarFotoDesdeVisor()">🗑️ Eliminar foto</button>
+      <button type="button" class="btn-s" onclick="cerrarModal()">Cerrar</button>`;
   }
 
   return `<div class="modal-bg" onclick="if(event.target===this)cerrarModal()"></div><div class="modal">${inner}</div>`;
