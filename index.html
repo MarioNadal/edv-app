@@ -116,7 +116,18 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--tx);min-height:1
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
 .sbox{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center;}
 .card{background:var(--s);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px;}
-.section-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+.section-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.sec-head{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.sec-icon{font-size:14px;line-height:1;}
+.sec-title{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--td);flex:1;}
+.sec-count{font-size:10.5px;color:var(--teal);font-weight:700;flex-shrink:0;}
+.day-summary{display:flex;gap:8px;margin-bottom:14px;}
+.day-summary-item{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 4px;text-align:center;}
+.day-summary-val{font-family:var(--font-d);font-weight:900;font-size:19px;line-height:1;color:var(--tx);}
+.day-summary-val.green{color:var(--green);}
+.day-summary-val.red{color:var(--red);}
+.day-summary-val.teal{color:var(--teal);}
+.day-summary-lbl{font-size:8.5px;color:var(--td);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:3px;}
 
 .day-nav{display:flex;align-items:center;background:var(--s);padding:10px 6px;border-radius:12px;border:1px solid var(--border);margin-bottom:14px;gap:4px;}
 .day-nav-btn{background:var(--s2);border:1px solid var(--border);color:var(--tx);width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
@@ -132,7 +143,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--tx);min-height:1
 textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .frow{display:flex;gap:8px;}.frow .fg{flex:1;}
 
-.btn-p{width:100%;padding:13px;border:none;border-radius:9px;font-weight:800;font-size:15px;cursor:pointer;background:var(--tealG);color:white;margin-top:4px;}
+.btn-p{width:100%;padding:13px;border:none;border-radius:9px;font-weight:800;font-size:15px;cursor:pointer;background:var(--tealG);color:white;margin-top:4px;box-shadow:0 3px 14px rgba(20,184,166,.28);}
 .btn-p:disabled{opacity:.5;cursor:not-allowed;}
 .btn-s{width:100%;padding:13px;border:1px solid var(--border);border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;background:var(--s2);color:var(--td);margin-top:8px;}
 .btn-d{width:100%;padding:13px;border:1px solid rgba(239,68,68,.3);border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;background:rgba(239,68,68,.08);color:#ef4444;margin-top:8px;}
@@ -182,18 +193,23 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .stars span{font-size:26px;cursor:pointer;line-height:1;color:var(--s3);}
 .stars span.fill{color:var(--sun);}
 
-.act-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:10px;}
-.act-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.act-name{font-family:var(--font-d);font-weight:800;font-size:16px;}
-.act-del{background:transparent;border:none;color:var(--td);font-size:16px;cursor:pointer;padding:2px 6px;}
-.act-obs{background:var(--s);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;line-height:1.55;color:var(--tx);white-space:pre-wrap;margin-top:8px;}
+.act-card{background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:12px;padding:14px;margin-bottom:12px;}
+.act-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.act-name{font-family:var(--font-d);font-weight:800;font-size:17px;display:flex;align-items:center;gap:7px;}
+.act-del{background:transparent;border:none;color:var(--td);font-size:16px;cursor:pointer;padding:4px 7px;border-radius:7px;}
+.act-del:active{background:var(--s3);}
+.act-sub-lbl{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--td);margin:14px 0 7px;}
+.act-obs{background:var(--s);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:13px;line-height:1.6;color:var(--tx);white-space:pre-wrap;margin-top:10px;}
 .act-obs.empty-obs{color:var(--tm);font-style:italic;}
 
-.photo-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-.photo-thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;background:var(--s3);flex-shrink:0;}
-.photo-add{width:64px;height:64px;border-radius:8px;background:var(--s3);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:var(--td);flex-shrink:0;}
+.photo-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;}
+.photo-thumb{width:70px;height:70px;border-radius:9px;object-fit:cover;background:var(--s3);flex-shrink:0;cursor:pointer;border:1px solid var(--border);transition:transform .15s;}
+.photo-thumb:active{transform:scale(.94);}
+.photo-add{width:70px;height:70px;border-radius:9px;background:var(--s3);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:var(--td);flex-shrink:0;}
 .photo-thumb-wrap{position:relative;}
-.photo-del{position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;border:2px solid var(--s2);border-radius:50%;width:19px;height:19px;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.photo-del{position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;border:2px solid var(--s2);border-radius:50%;width:20px;height:20px;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+.photo-view-wrap{background:var(--s3);border-radius:12px;overflow:hidden;margin-bottom:14px;display:flex;align-items:center;justify-content:center;min-height:180px;}
+.photo-view-img{width:100%;max-height:58vh;object-fit:contain;display:block;}
 
 .logo-upload{width:80px;height:80px;border-radius:14px;background:var(--s2);border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 8px;overflow:hidden;}
 .logo-upload img{width:100%;height:100%;object-fit:cover;}
@@ -231,7 +247,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.0
+   EDV · Escuela de Verano de Jaca — v1.0.1
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -470,8 +486,21 @@ function renderHoy(){
     html += `<div class="empty"><div class="ei">🌴</div>Día no lectivo (fin de semana o fuera de julio–agosto).<br>Puedes seguir registrando si hubo actividad especial.</div>`;
   }
 
+  if(ninos.length>0){
+    const presentes = ninos.filter(k=>day.asistencia[k.id]==='presente').length;
+    const ausentes = ninos.filter(k=>day.asistencia[k.id]==='ausente').length;
+    const justificados = ninos.filter(k=>day.asistencia[k.id]==='justificado').length;
+    html += `<div class="day-summary">
+      <div class="day-summary-item"><div class="day-summary-val green">${presentes}</div><div class="day-summary-lbl">Presentes</div></div>
+      <div class="day-summary-item"><div class="day-summary-val red">${ausentes}</div><div class="day-summary-lbl">Ausentes</div></div>
+      <div class="day-summary-item"><div class="day-summary-val">${justificados}</div><div class="day-summary-lbl">Justif.</div></div>
+      <div class="day-summary-item"><div class="day-summary-val teal">${day.actividades.length}</div><div class="day-summary-lbl">Activ.</div></div>
+    </div>`;
+  }
+
   // Asistencia
-  html += `<div class="section-card"><div class="fl" style="margin-bottom:8px">Asistencia (${ninos.length} inscritos hoy)</div>`;
+  html += `<div class="section-card">
+    <div class="sec-head"><span class="sec-icon">📝</span><span class="sec-title">Asistencia</span><span class="sec-count">${ninos.length} inscritos</span></div>`;
   if(ninos.length===0){
     html += `<div class="empty" style="padding:20px 8px"><div class="ei">🧒</div>No hay niños inscritos en esta fecha.<br>Revisa las semanas de inscripción en «Niños».</div>`;
   } else {
@@ -491,13 +520,13 @@ function renderHoy(){
 
   // Valoración colectiva
   html += `<div class="section-card">
-    <div class="fl" style="margin-bottom:8px">Valoración colectiva del día</div>
+    <div class="sec-head"><span class="sec-icon">⭐</span><span class="sec-title">Valoración colectiva</span></div>
     <div class="stars" style="margin-bottom:10px">${[1,2,3,4,5].map(n=>`<span class="${day.valEstrellas>=n?'fill':''}" onclick="setValEstrellas(${n})">★</span>`).join('')}</div>
     <textarea class="fi" placeholder="¿Cómo ha ido el grupo hoy en general? (opcional)" oninput="setValTexto(this.value)">${esc(day.valTexto)}</textarea>
   </div>`;
 
   // Actividades
-  html += `<div class="fl" style="margin:16px 0 8px">Actividades del día</div>`;
+  html += `<div class="sec-head" style="margin:16px 0 10px"><span class="sec-icon">🎯</span><span class="sec-title">Actividades del día</span>${day.actividades.length?`<span class="sec-count">${day.actividades.length}</span>`:''}</div>`;
   if(day.actividades.length===0){
     html += `<div class="empty" style="padding:24px 8px"><div class="ei">🎯</div>Todavía no has añadido ninguna actividad.</div>`;
   } else {
@@ -515,10 +544,10 @@ function renderActividad(iso, act){
   const fotos = act.fotos||[];
   let html = `<div class="act-card">
     <div class="act-head">
-      <div class="act-name">${esc(act.nombre||'Sin título')}</div>
+      <div class="act-name">🎯 ${esc(act.nombre||'Sin título')}</div>
       <button class="act-del" onclick="borrarActividad('${act.id}')">🗑️</button>
     </div>
-    <div class="fg" style="margin-bottom:8px">
+    <div class="fg" style="margin-bottom:10px">
       <label class="fl">Notas rápidas (qué se ha hecho, incidencias…)</label>
       <textarea class="fi" placeholder="Ej: torneo de datchball, mucha participación, incidencia con recogida de X..." oninput="setActNotas('${act.id}', this.value)">${esc(act.notas)}</textarea>
     </div>
@@ -527,8 +556,9 @@ function renderActividad(iso, act){
     </button>
     <div class="act-obs ${!act.obs?'empty-obs':''}">${act.obs ? esc(act.obs) : 'Aún no se ha generado ninguna observación para esta actividad.'}</div>
     ${act.obs ? `<button class="btn-s" style="margin-top:6px" onclick="copiarObservacion('${act.id}')">📋 Copiar observación</button>` : ''}
+    <div class="act-sub-lbl">Fotos${fotos.length?` (${fotos.length})`:''}</div>
     <div class="photo-strip">
-      ${fotos.map(fid=>`<div class="photo-thumb-wrap"><img class="photo-thumb" data-photo-id="${fid}"><div class="photo-del" onclick="borrarFoto('${act.id}','${fid}')">×</div></div>`).join('')}
+      ${fotos.map(fid=>`<div class="photo-thumb-wrap"><img class="photo-thumb" data-photo-id="${fid}" onclick="verFoto('${act.id}','${fid}')"><div class="photo-del" onclick="event.stopPropagation();borrarFoto('${act.id}','${fid}')">×</div></div>`).join('')}
       <div class="photo-add" onclick="anadirFoto('${act.id}')">📷</div>
     </div>
   </div>`;
@@ -581,6 +611,28 @@ function borrarFoto(actId, fotoId){
   saveDays(); render();
 }
 
+// ── Visor y descarga de fotos ────────────────────────────────────
+function verFoto(actId, fotoId){
+  S.modal = {tipo:'foto', actId, fotoId};
+  render();
+}
+async function descargarFoto(fotoId){
+  const url = await idbGet(fotoId);
+  if(!url){ toast('No se pudo cargar la foto'); return; }
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `EDV_foto_${fotoId}.jpg`;
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Foto descargada');
+}
+function borrarFotoDesdeVisor(){
+  if(!S.modal || S.modal.tipo!=='foto') return;
+  if(!confirm('¿Eliminar esta foto?')) return;
+  const {actId, fotoId} = S.modal;
+  S.modal = null;
+  borrarFoto(actId, fotoId);
+}
+
 function copiarAlPortapapeles(texto){
   if(navigator.clipboard && navigator.clipboard.writeText){
     return navigator.clipboard.writeText(texto);
@@ -606,18 +658,18 @@ async function copiarObservacion(actId){
 }
 
 // ── Generación de observaciones con IA (Claude API) ─────────────
-// Estilo: informe institucional de monitor de tiempo libre, registro elevado
-// y valorativo. Toma las notas del monitor como base factual y las redacta
-// de forma más elaborada y pulida, sin inventar hechos. No hace referencia
-// al grupo/programa, a la fecha ni a ninguna valoración numérica interna:
-// solo describe cómo se ha desarrollado la actividad concreta de ese día.
+// Estilo: punto intermedio entre un resumen plano de las notas del monitor
+// y un registro institucional cargado de superlativos. Redacción cuidada y
+// profesional, pero cercana y natural, sin acumular adjetivos elogiosos.
+// No hace referencia al grupo/programa, a la fecha ni a ninguna valoración
+// numérica interna: solo describe cómo se ha desarrollado la actividad.
 const STYLE_GUIDE = `Eres un monitor de tiempo libre que redacta la observación diaria de una actividad para el registro oficial de un programa (escuela de verano / campamento infantil-juvenil).
 
-Estilo y registro: elevado, valorativo e institucional, con vocabulario y giros como "se ha desarrollado de manera ejemplar", "ha resultado ser una experiencia sumamente positiva y enriquecedora", "superando las expectativas planteadas", "ha sido muy gratificante observar", "cabe destacar", "resulta especialmente destacable". Frases completas, bien construidas, en prosa fluida (nunca listas ni viñetas).
+Estilo y registro: profesional y cuidado, pero natural y cercano — un punto intermedio entre un simple resumen de notas y un informe institucional cargado de superlativos. Evita acumular varios adjetivos elogiosos seguidos o frases muy grandilocuentes tipo "ha resultado ser una experiencia sumamente enriquecedora que ha superado todas las expectativas"; usa como mucho una valoración positiva por frase, con naturalidad. Frases completas y bien construidas, en prosa fluida (nunca listas ni viñetas).
 
-Contenido: toma como base los hechos que te indique el monitor en sus notas (qué se ha hecho, cómo ha ido, cualquier detalle relevante) y redacta una versión más elaborada, pulida y extensa de esos mismos hechos. No inventes actividades, datos ni incidencias que no estén en las notas, pero sí puedes ampliar y embellecer la forma de contarlas. Destaca de forma natural, solo si encaja con lo descrito, aspectos como la actitud y disposición de los participantes, la colaboración y el compañerismo, la comunicación, el espíritu deportivo, el respeto por las normas o la organización del juego.
+Contenido: toma como base los hechos que te indique el monitor en sus notas (qué se ha hecho, cómo ha ido, cualquier detalle relevante) y redacta una versión algo más completa y mejor escrita de esos mismos hechos, mejorando la redacción sin inflar ni dramatizar lo ocurrido. No inventes actividades, datos ni incidencias que no estén en las notas. Menciona, solo si encaja de forma natural con lo descrito, aspectos como la actitud del grupo, la participación, la colaboración o el ambiente general — sin forzarlo si las notas son breves.
 
-Extensión: un único párrafo de entre 80 y 160 palabras.
+Extensión: un único párrafo de entre 70 y 140 palabras.
 
 Qué NO incluir: no menciones el nombre del grupo, del programa, la fecha, ni ninguna valoración numérica o puntuación interna — la observación se limita a describir la actividad de ese día, sin contexto administrativo. No incluyas saludos, firmas ni frases como "aquí tienes la observación": responde únicamente con el texto de la observación.
 
@@ -1017,6 +1069,14 @@ function renderModal(){
       <button class="btn-p" onclick="guardarNino()">Guardar</button>
       ${k.id?`<button class="btn-d" onclick="borrarNino()">Eliminar niño/a</button>`:''}
       <button class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
+  }
+
+  if(m.tipo==='foto'){
+    inner = `<div class="mhandle"></div>
+      <div class="photo-view-wrap"><img class="photo-view-img" data-photo-id="${m.fotoId}"></div>
+      <button class="btn-p" onclick="descargarFoto('${m.fotoId}')">⬇️ Descargar foto</button>
+      <button class="btn-d" onclick="borrarFotoDesdeVisor()">🗑️ Eliminar foto</button>
+      <button class="btn-s" onclick="cerrarModal()">Cerrar</button>`;
   }
 
   return `<div class="modal-bg" onclick="if(event.target===this)cerrarModal()"></div><div class="modal">${inner}</div>`;

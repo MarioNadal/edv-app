@@ -2,6 +2,16 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.1] — 2026-07-05
+
+### Añadido
+- Visor de fotos a tamaño completo (toca cualquier miniatura de una actividad) con botón de descarga y de eliminar.
+- Resumen rápido del día (presentes, ausentes, justificados, actividades) en la pestaña "Hoy".
+
+### Cambiado
+- Repaso visual de la pestaña "Hoy": cabeceras de sección con icono, tarjetas de actividad con más jerarquía y separación, miniaturas de foto más grandes y con mejor tacto.
+- `CACHE_VERSION` del Service Worker actualizada a `edv-v1.0.1` para que los dispositivos con la PWA instalada reciban la actualización.
+
 ## [1.0.0] — 2026-07-04
 
 ### Añadido

@@ -5,8 +5,8 @@ PWA single-file para llevar el día a día de un grupo de la Escuela de Verano d
 Este proyecto nace como una adaptación de la arquitectura de [Kortline](https://github.com/MarioNadal/kortline-app) a un caso de uso completamente distinto (no es una app de baloncesto). Comparten enfoque técnico (single-file, sin build, sin framework) pero no comparten código de dominio ni repositorio.
 
 - **Repo:** (pendiente de crear — repo privado recomendado, ver nota de privacidad más abajo)
-- **Grupo gestionado en v1.0.0:** 2014 (curso de la Escuela de Verano 2026)
-- **Versión estable actual:** v1.0.0
+- **Grupo gestionado:** 2014 (curso de la Escuela de Verano 2026)
+- **Versión estable actual:** v1.0.1
 
 ## 1. Qué hace
 
@@ -14,7 +14,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 - Pase de lista diario (presente / ausente / justificado) mostrando solo a quienes están inscritos ese día.
 - Valoración colectiva del día (1–5 estrellas + texto libre).
 - Actividades del día: nombre, notas rápidas del monitor, y un botón para generar la observación redactada con IA a partir de esas notas.
-- Fotos por actividad.
+- Fotos por actividad, con visor a tamaño completo y descarga individual.
 - Historial navegable por día, con filtro por mes.
 - Estadísticas de asistencia por niño/a y exportación a PDF y Excel.
 - Copia de seguridad manual en JSON (niños, asistencia, actividades — no incluye fotos).
@@ -72,6 +72,7 @@ Esta app maneja nombres, asistencia y fotos de menores. Aunque los datos reales 
 
 | Versión | Estado | Resumen |
 |---|---|---|
-| v1.0.0 | ✅ Esta versión | Asistencia, valoración, actividades + IA, fotos, export PDF/Excel |
+| v1.0.0 | ✅ Publicada | Asistencia, valoración, actividades + IA, fotos, export PDF/Excel |
+| v1.0.1 | ✅ Esta versión | Visor/descarga de fotos, repaso visual de la pestaña "Hoy" |
 | v1.1.0 | 💡 Idea | Gráficas de asistencia, gestión de varios grupos |
 | v2.0.0 | 💡 Idea | Backend ligero para sincronizar entre dispositivos del equipo de monitores |
