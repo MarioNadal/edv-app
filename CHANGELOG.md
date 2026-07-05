@@ -2,6 +2,14 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.8] — 2026-07-05
+
+### Cambiado
+- Los botones de asistencia (P/A/J) se han rediseñado como un único control segmentado (una sola píldora con las tres opciones dentro), igual que el estilo de pestañas ya usado en Historial y en Kortline, en vez de tres botones sueltos con borde individual.
+
+### Añadido
+- Rango de fechas opcional para ausencias justificadas ("Desde" / "Hasta") en la ficha de cada niño/a, para los casos en los que se sabe con antelación que no va a venir un tiempo. Se muestra como recordatorio (🟡) en la lista de Niños y junto al nombre en la Asistencia de "Hoy".
+
 ## [1.0.7] — 2026-07-05
 
 ### Añadido

@@ -177,18 +177,20 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .kid-name{font-weight:700;font-size:14.5px;}
 .kid-meta{font-size:11px;color:var(--td);margin-top:1px;}
 .kid-note{font-size:10.5px;color:var(--sun);font-weight:600;margin-top:3px;line-height:1.35;}
+.kid-note-just{color:var(--amber);}
 
 .att-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;}
 .att-row:last-child{border-bottom:none;}
 .att-name{flex:1;}
 .att-name-txt{font-weight:600;font-size:14.5px;}
 .att-note{font-size:10.5px;color:var(--sun);font-weight:600;margin-top:2px;line-height:1.35;}
-.att-opts{display:flex;gap:5px;}
-.att-pill{padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--td);font-size:11.5px;font-weight:700;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease,transform .1s ease;}
+.att-note-just{color:var(--amber);}
+.att-opts{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:3px;gap:2px;}
+.att-pill{padding:6px 11px;border-radius:7px;border:none;background:transparent;color:var(--td);font-size:11.5px;font-weight:700;cursor:pointer;transition:background .15s ease,color .15s ease,transform .1s ease;}
 .att-pill:active{transform:scale(.92);}
-.att-pill.on-p{background:rgba(34,197,94,.18);border-color:var(--green);color:var(--green);}
-.att-pill.on-a{background:rgba(239,68,68,.15);border-color:var(--red);color:var(--red);}
-.att-pill.on-j{background:rgba(245,158,11,.15);border-color:var(--amber);color:var(--amber);}
+.att-pill.on-p{background:rgba(34,197,94,.22);color:var(--green);}
+.att-pill.on-a{background:rgba(239,68,68,.2);color:var(--red);}
+.att-pill.on-j{background:rgba(245,158,11,.2);color:var(--amber);}
 
 .week-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px;}
 .week-chip{padding:9px 8px;border-radius:9px;border:1px solid var(--border);background:var(--s2);cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:var(--td);transition:background .15s ease,border-color .15s ease,color .15s ease,transform .1s ease;}
@@ -264,7 +266,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.7
+   EDV · Escuela de Verano de Jaca — v1.0.8
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -405,6 +407,14 @@ function listaSemanas(){
 function fmtFechaEs(iso){
   const d = new Date(iso+'T00:00:00');
   return d.toLocaleDateString('es-ES',{weekday:'long', day:'numeric', month:'long'});
+}
+// Texto de recordatorio para una ausencia justificada con fechas (opcionales)
+function formatJustRange(k){
+  if(!k || (!k.justDesde && !k.justHasta)) return '';
+  const f = iso => fmtDDMM(new Date(iso+'T00:00:00Z'));
+  if(k.justDesde && k.justHasta) return `Justificado del ${f(k.justDesde)} al ${f(k.justHasta)}`;
+  if(k.justHasta) return `Justificado hasta el ${f(k.justHasta)}`;
+  return `Justificado desde el ${f(k.justDesde)}`;
 }
 
 // ── Modelo: ¿un niño está inscrito en una fecha? ───────────────
@@ -569,6 +579,7 @@ function renderHoy(){
       html += `<div class="att-row">
         <div class="att-name">
           <div class="att-name-txt">${esc(k.nombre)}</div>
+          ${formatJustRange(k)?`<div class="att-note att-note-just">🟡 ${formatJustRange(k)}</div>`:''}
           ${k.obs?`<div class="att-note">📌 ${esc(k.obs)}</div>`:''}
         </div>
         <div class="att-opts">
@@ -844,6 +855,7 @@ function renderNinos(){
         <div style="flex:1">
           <div class="kid-name">${esc(k.nombre)}</div>
           <div class="kid-meta">${meta.join(' · ')}</div>
+          ${formatJustRange(k)?`<div class="kid-note kid-note-just">🟡 ${formatJustRange(k)}</div>`:''}
           ${k.obs?`<div class="kid-note">📌 ${esc(k.obs)}</div>`:''}
         </div>
         <div style="color:var(--td)">›</div>
@@ -857,7 +869,7 @@ function renderNinos(){
 }
 
 function abrirModalNino(kidId){
-  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null, obs:''};
+  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null, obs:'', justDesde:'', justHasta:''};
   S.modal = {tipo:'nino', kid: JSON.parse(JSON.stringify(kid))};
   render();
 }
@@ -1165,7 +1177,16 @@ function renderModal(){
       <div class="week-grid">
         ${semanasSueltas.map(s=>`<div class="week-chip ${(k.semanas||[]).includes(s.key)?'on':''}" onclick="toggleModalNinoSemana('${s.key}')">${s.mes==='julio'?'JUL':'AGO'} ${s.label}</div>`).join('')}
       </div>` : ''}
-      <div class="fg" style="margin-top:12px">
+      <div class="fl" style="margin:14px 0 8px">Ausencia justificada (opcional, si se sabe)</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Desde</label>
+          <input class="fi" type="date" id="m-nino-justdesde" value="${k.justDesde||''}" oninput="S.modal.kid.justDesde=this.value">
+        </div>
+        <div class="fg"><label class="fl">Hasta</label>
+          <input class="fi" type="date" id="m-nino-justhasta" value="${k.justHasta||''}" oninput="S.modal.kid.justHasta=this.value">
+        </div>
+      </div>
+      <div class="fg">
         <label class="fl">Observaciones</label>
         <textarea class="fi" id="m-nino-obs" placeholder="Ej: no vendrá hasta el día 15, recogida solo por su madre, alergia a los frutos secos..." oninput="S.modal.kid.obs=this.value">${esc(k.obs)}</textarea>
       </div>

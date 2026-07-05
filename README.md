@@ -6,7 +6,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 
 - **Repo:** (pendiente de crear — repo privado recomendado, ver nota de privacidad más abajo)
 - **Grupo gestionado:** 2014 (curso de la Escuela de Verano 2026)
-- **Versión estable actual:** v1.0.7
+- **Versión estable actual:** v1.0.8
 
 ## 1. Qué hace
 
@@ -79,6 +79,7 @@ Esta app maneja nombres, asistencia y fotos de menores. Aunque los datos reales 
 | v1.0.4 | ✅ Publicada | La IA respeta el nombre literal de la actividad (no lo sustituye por otro juego) |
 | v1.0.5 | ✅ Publicada | Toast desacoplado del render completo: sin salto de scroll ni parpadeo al copiar/guardar |
 | v1.0.6 | ✅ Publicada | Guardar foto en galería vía hoja de compartir nativa (antes descarga poco fiable) |
-| v1.0.7 | ✅ Esta versión | Observaciones por niño/a, nombres en mayúsculas, fix crítico de nombre borrado en el modal |
+| v1.0.7 | ✅ Publicada | Observaciones por niño/a, nombres en mayúsculas, fix crítico de nombre borrado en el modal |
+| v1.0.8 | ✅ Esta versión | Botones de asistencia rediseñados (segmentado, estilo Kortline), rango de fechas para ausencias justificadas |
 | v1.1.0 | 💡 Idea | Gráficas de asistencia, gestión de varios grupos |
 | v2.0.0 | 💡 Idea | Backend ligero para sincronizar entre dispositivos del equipo de monitores |
