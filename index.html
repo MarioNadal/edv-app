@@ -237,7 +237,7 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .hist-date{font-weight:700;font-size:14px;text-transform:capitalize;}
 .hist-meta{font-size:11.5px;color:var(--td);margin-top:2px;}
 
-.toast{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;z-index:10001;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.6);max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+.toast{display:none;position:fixed;top:calc(68px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;z-index:10001;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.6);max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
 
 .empty{text-align:center;padding:40px 16px;color:var(--tm);}
 .empty .ei{font-size:40px;margin-bottom:10px;}
@@ -261,7 +261,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.4
+   EDV · Escuela de Verano de Jaca — v1.0.5
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -278,7 +278,6 @@ let S = {
   fecha: todayISO(),
   histMesFiltro: 'todos',
   modal: null,       // {tipo, ...datos}
-  toastMsg: null,
 };
 
 function saveCfg(){ lsSet('cfg', S.cfg); }
@@ -413,12 +412,21 @@ function getDay(iso){
 }
 
 // ── Toast ──────────────────────────────────────────────────────
+// El toast vive fuera de #root y se manipula directamente: mostrar un
+// aviso (p. ej. "Observación copiada") nunca debe forzar un render completo
+// de la pantalla ni mover el scroll.
 let _toastTimer=null;
+let _toastEl=null;
 function toast(msg){
-  S.toastMsg = msg;
-  render();
+  if(!_toastEl){
+    _toastEl = document.createElement('div');
+    _toastEl.className = 'toast';
+    document.body.appendChild(_toastEl);
+  }
+  _toastEl.textContent = msg;
+  _toastEl.style.display = 'block';
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>{ S.toastMsg=null; render(); }, 2600);
+  _toastTimer = setTimeout(()=>{ if(_toastEl) _toastEl.style.display='none'; }, 2600);
 }
 
 // ── Render principal ────────────────────────────────────────────
@@ -436,14 +444,19 @@ function render(){
   const modalOpenNow = !!S.modal;
   const isModalOpening = modalOpenNow && !_modalOpenBefore;
   _modalOpenBefore = modalOpenNow;
+  const prevScrollY = window.scrollY;
 
-  root.innerHTML = renderHeader() + renderContent() + renderNav() + renderModal() + renderToast();
+  root.innerHTML = renderHeader() + renderContent() + renderNav() + renderModal();
   hydratePhotos();
 
   if(isNewScreen){
     window.scrollTo(0,0);
     const content = root.querySelector('.content');
     if(content) content.classList.add('view-enter');
+  } else {
+    // Algunos navegadores recortan el scroll al reemplazar el contenido;
+    // lo restauramos explícitamente para que nunca "salte" hacia arriba.
+    window.scrollTo(0, prevScrollY);
   }
   if(modalOpenNow && !isModalOpening){
     const modalEl = root.querySelector('.modal');
@@ -475,11 +488,6 @@ function renderNav(){
     <button class="nb ${S.view===it.v?'on':''}" onclick="setView('${it.v}')">
       <span class="ni">${it.i}</span>${it.l}
     </button>`).join('')}</div>`;
-}
-
-function renderToast(){
-  if(!S.toastMsg) return '';
-  return `<div class="toast">${esc(S.toastMsg)}</div>`;
 }
 
 function setView(v){ S.view=v; S.modal=null; render(); }

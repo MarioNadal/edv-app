@@ -2,6 +2,12 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.5] — 2026-07-05
+
+### Corregido
+- El aviso "toast" (p. ej. al copiar una observación, guardar, etc.) forzaba un render completo de la pantalla aunque no cambiara ningún dato, y en algunos navegadores móviles eso provocaba un salto de scroll hacia arriba. El toast ahora es un elemento independiente que se muestra/oculta directamente, sin tocar el resto de la pantalla.
+- `render()` restaura explícitamente la posición de scroll tras cada actualización que no cambia de pantalla, como refuerzo adicional frente a saltos del navegador al reemplazar contenido.
+
 ## [1.0.4] — 2026-07-05
 
 ### Corregido
