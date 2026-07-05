@@ -83,6 +83,7 @@ if("serviceWorker" in navigator){
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+html{overscroll-behavior-y:none;}
 :root{
   --teal:#14B8A6;--teal2:#0B5D52;--tealG:linear-gradient(135deg,#14B8A6,#0B5D52);
   --sun:#F5A623;
@@ -154,7 +155,7 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 @media (min-width:430px){.fab{right:calc(50% - 200px);}}
 
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;}
-.modal{background:var(--s);border-radius:20px 20px 0 0;border-top:1px solid var(--border);position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:20px;max-height:92vh;overflow-y:auto;box-sizing:border-box;z-index:10000;animation:modalSlideUp .25s ease;}
+.modal{background:var(--s);border-radius:20px 20px 0 0;border-top:1px solid var(--border);position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:20px;max-height:92vh;overflow-y:auto;overscroll-behavior-y:contain;box-sizing:border-box;z-index:10000;animation:modalSlideUp .25s ease;}
 @keyframes modalSlideUp{from{transform:translateX(-50%) translateY(100%);}to{transform:translateX(-50%) translateY(0);}}
 .mhandle{width:100%;height:22px;background:transparent;margin:-8px auto 6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .mhandle::after{content:"";display:block;width:34px;height:4px;background:var(--s3);border-radius:2px;}
@@ -247,7 +248,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.1
+   EDV · Escuela de Verano de Jaca — v1.0.2
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -1044,7 +1045,11 @@ function renderModal(){
 
   if(m.tipo==='nino'){
     const k = m.kid;
-    const semanas = listaSemanas();
+    const semanasSueltas = listaSemanas().filter(s=>{
+      if(s.mes==='julio' && k.julioCompleto) return false;
+      if(s.mes==='agosto' && k.agostoCompleto) return false;
+      return true;
+    });
     inner = `<div class="mhandle"></div>
       <div class="mtitle">${k.id?'Editar':'Nuevo'} niño/a</div>
       <div class="logo-upload" style="border-radius:50%" onclick="subirFotoNino()">
@@ -1056,19 +1061,20 @@ function renderModal(){
       <div class="fl" style="margin-bottom:8px">Periodo de inscripción</div>
       <div class="toggle-row">
         <div class="toggle-info"><div class="toggle-title">Julio completo</div></div>
-        <button class="tswitch ${k.julioCompleto?'on':''}" onclick="toggleModalNinoMes('julioCompleto')"></button>
+        <button type="button" class="tswitch ${k.julioCompleto?'on':''}" onclick="toggleModalNinoMes('julioCompleto')"></button>
       </div>
       <div class="toggle-row">
         <div class="toggle-info"><div class="toggle-title">Agosto completo</div></div>
-        <button class="tswitch ${k.agostoCompleto?'on':''}" onclick="toggleModalNinoMes('agostoCompleto')"></button>
+        <button type="button" class="tswitch ${k.agostoCompleto?'on':''}" onclick="toggleModalNinoMes('agostoCompleto')"></button>
       </div>
+      ${semanasSueltas.length>0 ? `
       <div class="fl" style="margin:12px 0 8px">O semanas sueltas (si no está el mes completo)</div>
       <div class="week-grid">
-        ${semanas.map(s=>`<div class="week-chip ${(k.semanas||[]).includes(s.key)?'on':''}" onclick="toggleModalNinoSemana('${s.key}')">${s.mes==='julio'?'JUL':'AGO'} ${s.label}</div>`).join('')}
-      </div>
-      <button class="btn-p" onclick="guardarNino()">Guardar</button>
-      ${k.id?`<button class="btn-d" onclick="borrarNino()">Eliminar niño/a</button>`:''}
-      <button class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
+        ${semanasSueltas.map(s=>`<div class="week-chip ${(k.semanas||[]).includes(s.key)?'on':''}" onclick="toggleModalNinoSemana('${s.key}')">${s.mes==='julio'?'JUL':'AGO'} ${s.label}</div>`).join('')}
+      </div>` : ''}
+      <button type="button" class="btn-p" onclick="guardarNino()">Guardar</button>
+      ${k.id?`<button type="button" class="btn-d" onclick="borrarNino()">Eliminar niño/a</button>`:''}
+      <button type="button" class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
   }
 
   if(m.tipo==='foto'){

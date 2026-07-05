@@ -2,6 +2,12 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.2] — 2026-07-05
+
+### Corregido
+- El modal de "Nuevo niño/a" recargaba la página al tocar cualquier botón (gesto nativo de "pull-to-refresh" del móvil, activado por el scroll interno del modal). Contenido con `overscroll-behavior`.
+- Las semanas sueltas de julio/agosto ahora se ocultan del selector en cuanto ese mes se marca como "completo", evitando el solapamiento confuso entre ambos campos.
+
 ## [1.0.1] — 2026-07-05
 
 ### Añadido
