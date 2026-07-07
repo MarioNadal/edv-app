@@ -2,6 +2,18 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.1.0] — 2026-07-07
+
+### Añadido
+- Campo "Motivo" opcional en cada ausencia justificada (p. ej. "vacaciones familiares", "cita médica"), visible junto al rango de fechas.
+- Foto/avatar del niño/a en cada fila de la lista de Asistencia de "Hoy", para identificar más rápido al pasar lista.
+- Aviso en "Hoy" si llevas 7 días o más sin exportar una copia de seguridad (o si nunca has exportado ninguna), con acceso directo a Ajustes.
+- Autocompletado del nombre de actividad con las que ya se han usado en días anteriores (evita reescribir "Piscina" o "Datchball" cada vez).
+
+### Corregido
+- Estadísticas, exportación a PDF y exportación a Excel ahora calculan el estado de asistencia igual que "Hoy" (marca explícita, o "Justificado" si hay una ausencia activa ese día), en vez de leer el dato en bruto. Antes, un día con ausencia activa que nunca se hubiera abierto en "Hoy" aparecía como "sin marcar" en los informes.
+- Historial muestra también el número de justificados por día (antes solo presentes/ausentes).
+
 ## [1.0.12] — 2026-07-07
 
 ### Cambiado

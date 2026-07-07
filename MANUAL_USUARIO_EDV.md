@@ -1,4 +1,4 @@
-# Manual de usuario — EDV (v1.0.0)
+# Manual de usuario — EDV (v1.1.0)
 
 ## 1. Primeros pasos
 
@@ -24,7 +24,7 @@ Puedes editar o eliminar a un niño/a en cualquier momento tocando su fila. Elim
 
 ## 3. Ausencias justificadas
 
-Si un niño/a avisa con antelación de que va a faltar un tiempo, apúntalo en la pestaña **Ausencias** (no en su ficha, para poder guardar varios periodos distintos a lo largo del verano si hace falta). Pulsa `+`, elige el niño/a y pon la fecha "Desde" y/o "Hasta" que se sepan (puedes rellenar solo una de las dos si no conoces la otra).
+Si un niño/a avisa con antelación de que va a faltar un tiempo, apúntalo en la pestaña **Ausencias** (no en su ficha, para poder guardar varios periodos distintos a lo largo del verano si hace falta). Pulsa `+`, elige el niño/a, pon la fecha "Desde" y/o "Hasta" que se sepan (puedes rellenar solo una de las dos si no conoces la otra) y, si quieres, un motivo breve (por ejemplo, "vacaciones familiares" o "cita médica").
 
 Cada periodo se muestra con su estado — **Activa hoy**, **Próxima** o **Finalizada** — y aparece como recordatorio 🟡 tanto en la lista de Niños como junto al nombre en la Asistencia de "Hoy" (solo en los días dentro de ese rango). Además, si ese día todavía no habías marcado nada para ese niño/a, la asistencia aparece ya puesta como "Justificado" en cuanto entras en la pantalla — puedes cambiarla en cualquier momento tocando su botón de asistencia, por ejemplo si al final sí ha venido.
 
@@ -39,7 +39,7 @@ Si un día viene (o falta) todo el grupo, usa los botones "Marcar todo el grupo"
 **Valoración colectiva:** puntúa el día con estrellas (1 a 5) y añade, si quieres, un comentario general sobre cómo ha ido el grupo.
 
 **Actividades:**
-1. Pulsa "+ Añadir actividad" y ponle un nombre (por ejemplo, "Datchball", "Piscina", "Taller de manualidades").
+1. Pulsa "+ Añadir actividad" y ponle un nombre (por ejemplo, "Datchball", "Piscina", "Taller de manualidades"). Si ya has usado ese nombre otro día, te aparecerá como sugerencia al escribir.
 2. Escribe unas notas rápidas: qué se ha hecho, cómo ha ido, y cualquier incidencia relevante (un retraso en una recogida, un pequeño conflicto, etc.). Cuanto más claras sean las notas, mejor será la observación generada.
 3. Pulsa "✨ Generar observación con IA". En unos segundos aparecerá un párrafo redactado listo para compartir con las familias o guardar como registro. Puedes editar las notas y volver a generar cuantas veces quieras — cada generación sustituye a la anterior.
 4. Añade fotos de la actividad con el botón de la cámara. Toca cualquier miniatura para verla a tamaño completo. Con "💾 Guardar en galería" se abre la hoja de compartir del móvil: elige la opción "Guardar imagen" o "Guardar en Fotos" para que quede en la galería del dispositivo (por seguridad, ninguna web puede guardar ahí directamente sin ese paso). También puedes eliminar la foto desde el mismo visor.
@@ -64,7 +64,7 @@ En **Ajustes → Copia de seguridad**:
 - **Exportar copia de seguridad**: descarga un archivo `.json` con niños, asistencia, actividades y ausencias justificadas (las fotos no se incluyen en este archivo, ya que se guardan aparte en el dispositivo).
 - **Restaurar desde copia de seguridad**: sustituye los datos actuales por los del archivo elegido. Úsalo con cuidado — es una sustitución completa, no una fusión.
 
-Se recomienda exportar una copia de seguridad al menos una vez por semana durante el verano.
+Se recomienda exportar una copia de seguridad al menos una vez por semana durante el verano. Si llevas 7 días o más sin hacerlo (o no has exportado ninguna todavía), verás un aviso arriba de la pantalla "Hoy" — toca para ir directo a Ajustes.
 
 ## 8. Borrar datos
 

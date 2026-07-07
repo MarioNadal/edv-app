@@ -185,6 +185,7 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .au-estado.pasada{color:var(--td);}
 
 .att-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;}
+.att-avatar{width:32px;height:32px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:800;font-size:13px;color:var(--teal);flex-shrink:0;object-fit:cover;}
 .att-row:last-child{border-bottom:none;}
 .att-name{flex:1;}
 .att-name-txt{font-weight:600;font-size:14.5px;}
@@ -280,7 +281,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.12
+   EDV · Escuela de Verano de Jaca — v1.1.0
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -467,9 +468,12 @@ function ausenciaProximaOActiva(kidId){
 function formatAusencia(a){
   if(!a) return '';
   const f = iso => fmtDDMM(new Date(iso+'T00:00:00Z'));
-  if(a.desde && a.hasta) return `Justificado del ${f(a.desde)} al ${f(a.hasta)}`;
-  if(a.hasta) return `Justificado hasta el ${f(a.hasta)}`;
-  return `Justificado desde el ${f(a.desde)}`;
+  let txt;
+  if(a.desde && a.hasta) txt = `Justificado del ${f(a.desde)} al ${f(a.hasta)}`;
+  else if(a.hasta) txt = `Justificado hasta el ${f(a.hasta)}`;
+  else txt = `Justificado desde el ${f(a.desde)}`;
+  if(a.motivo) txt += ' — ' + esc(a.motivo);
+  return txt;
 }
 
 // ── Modelo: ¿un niño está inscrito en una fecha? ───────────────
@@ -483,6 +487,20 @@ function ninoInscritoEn(kid, iso){
 function ninosDelDia(iso){
   return S.kids.filter(k=>ninoInscritoEn(k, iso));
 }
+// Estado de asistencia "efectivo" para un niño/a en una fecha: la marca
+// explícita si existe (aunque sea "sin marcar" tras un reset), o si nunca se
+// ha tocado ese día, "justificado" cuando hay una ausencia activa. Se usa
+// tanto para rellenar Hoy como para que Historial/Estadísticas/exportaciones
+// sean correctas aunque ese día no se haya abierto nunca en "Hoy".
+function estadoAsistenciaEfectivo(kidId, iso){
+  const day = S.days[iso];
+  const asistencia = (day && day.asistencia) || {};
+  if(Object.prototype.hasOwnProperty.call(asistencia, kidId)){
+    return asistencia[kidId] || null;
+  }
+  if(ausenciaEnFecha(kidId, iso)) return 'justificado';
+  return null;
+}
 function getDay(iso){
   if(!S.days[iso]){
     S.days[iso] = {valEstrellas:0, valTexto:'', actividades:[], asistencia:{}};
@@ -495,7 +513,7 @@ function getDay(iso){
   // cambiar tocando su botón de asistencia, igual que cualquier otra marca.
   let cambiado = false;
   ninosDelDia(iso).forEach(k=>{
-    if(!Object.prototype.hasOwnProperty.call(day.asistencia, k.id) && ausenciaEnFecha(k.id, iso)){
+    if(!Object.prototype.hasOwnProperty.call(day.asistencia, k.id) && estadoAsistenciaEfectivo(k.id, iso)==='justificado'){
       day.asistencia[k.id] = 'justificado';
       cambiado = true;
     }
@@ -612,6 +630,13 @@ function renderHoy(){
   const esLaborable = esCampDay(iso);
 
   let html = `<div class="content">`;
+
+  const hayDatos = S.kids.length>0 || Object.keys(S.days).length>0;
+  const diasBackup = diasDesdeUltimoBackup();
+  if(hayDatos && (diasBackup===null || diasBackup>=7)){
+    html += `<div class="warn-box" style="margin-bottom:14px;cursor:pointer" onclick="setView('ajustes')">⚠️ ${diasBackup===null?'Todavía no has exportado ninguna copia de seguridad.':'Llevas '+diasBackup+' días sin exportar una copia de seguridad.'} Toca para ir a Ajustes.</div>`;
+  }
+
   html += `<div class="day-nav">
     <button class="day-nav-btn" onclick="cambiarDia(-1)">‹</button>
     <div class="day-nav-lbl" onclick="irAHoy()">
@@ -656,6 +681,7 @@ function renderHoy(){
       const einfo = attEstadoInfo(est);
       const ausHoy = ausenciaEnFecha(k.id, iso);
       html += `<div class="att-row">
+        <div class="att-avatar">${k.foto?`<img src="${k.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:esc((k.nombre||'?')[0].toUpperCase())}</div>
         <div class="att-name">
           <div class="att-name-txt">${esc(k.nombre)}</div>
           ${ausHoy?`<div class="att-note att-note-just">🟡 ${formatAusencia(ausHoy)}</div>`:''}
@@ -766,6 +792,15 @@ function borrarActividad(actId){
 function abrirModalActividad(){
   S.modal = {tipo:'nuevaActividad', nombre:''};
   render();
+}
+// Nombres de actividades ya usadas en días anteriores, para autocompletar
+// (evita reescribir "Piscina" o "Datchball" cada vez que se repiten).
+function nombresActividadesPrevias(){
+  const set = new Set();
+  Object.values(S.days).forEach(day=>{
+    (day.actividades||[]).forEach(act=>{ if(act.nombre) set.add(act.nombre); });
+  });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,'es'));
 }
 function confirmarNuevaActividad(){
   const nombre = document.getElementById('m-act-nombre').value.trim();
@@ -1058,11 +1093,11 @@ function abrirModalAusencia(id){
   if(id){
     const a = S.ausencias.find(x=>x.id===id);
     if(!a) return;
-    S.modal = {tipo:'ausencia', id:a.id, kidId:a.kidId, desde:a.desde||'', hasta:a.hasta||''};
+    S.modal = {tipo:'ausencia', id:a.id, kidId:a.kidId, desde:a.desde||'', hasta:a.hasta||'', motivo:a.motivo||''};
   } else {
     if(S.kids.length===0){ toast('Añade primero un niño o niña'); return; }
     const primero = S.kids.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'))[0];
-    S.modal = {tipo:'ausencia', id:null, kidId:primero.id, desde:'', hasta:''};
+    S.modal = {tipo:'ausencia', id:null, kidId:primero.id, desde:'', hasta:'', motivo:''};
   }
   render();
 }
@@ -1072,13 +1107,14 @@ function guardarAusencia(){
   if(!kidId){ toast('Elige un niño o niña'); return; }
   const desde = m.desde || '';
   const hasta = m.hasta || '';
+  const motivo = (m.motivo||'').trim();
   if(!desde && !hasta){ toast('Indica al menos una fecha (desde o hasta)'); return; }
   if(desde && hasta && desde>hasta){ toast('La fecha "Desde" no puede ser posterior a "Hasta"'); return; }
   if(m.id){
     const a = S.ausencias.find(x=>x.id===m.id);
-    a.kidId = kidId; a.desde = desde; a.hasta = hasta;
+    a.kidId = kidId; a.desde = desde; a.hasta = hasta; a.motivo = motivo;
   } else {
-    S.ausencias.push({id:uid(), kidId, desde, hasta});
+    S.ausencias.push({id:uid(), kidId, desde, hasta, motivo});
   }
   saveAusencias();
   S.modal=null; render();
@@ -1113,11 +1149,16 @@ function renderHistorial(){
     html += `<div class="card">`;
     filtradas.forEach(iso=>{
       const day = S.days[iso];
-      const presentes = Object.values(day.asistencia||{}).filter(v=>v==='presente').length;
-      const ausentes = Object.values(day.asistencia||{}).filter(v=>v==='ausente').length;
+      let presentes=0, ausentes=0, justificados=0;
+      ninosDelDia(iso).forEach(k=>{
+        const est = estadoAsistenciaEfectivo(k.id, iso);
+        if(est==='presente') presentes++;
+        else if(est==='ausente') ausentes++;
+        else if(est==='justificado') justificados++;
+      });
       html += `<div class="hist-row" onclick="irADia('${iso}')">
         <div class="hist-date">${fmtFechaEs(iso)}</div>
-        <div class="hist-meta">${day.actividades.length} actividad(es) · ${presentes} presentes / ${ausentes} ausentes ${day.valEstrellas?(' · '+'★'.repeat(day.valEstrellas)):''}</div>
+        <div class="hist-meta">${day.actividades.length} actividad(es) · ${presentes} presentes / ${ausentes} ausentes / ${justificados} justif. ${day.valEstrellas?(' · '+'★'.repeat(day.valEstrellas)):''}</div>
       </div>`;
     });
     html += `</div>`;
@@ -1153,7 +1194,7 @@ function renderEstadisticas(){
       let dias=0, pres=0;
       fechas.forEach(iso=>{
         if(!ninoInscritoEn(k, iso)) return;
-        const est = (S.days[iso].asistencia||{})[k.id];
+        const est = estadoAsistenciaEfectivo(k.id, iso);
         if(est){ dias++; if(est==='presente') pres++; }
       });
       const pct = dias>0 ? Math.round(pres/dias*100) : 0;
@@ -1185,7 +1226,7 @@ function exportarPDF(){
       let dias=0, pres=0, aus=0, just=0;
       fechas.forEach(iso=>{
         if(!ninoInscritoEn(k, iso)) return;
-        const est = (S.days[iso].asistencia||{})[k.id];
+        const est = estadoAsistenciaEfectivo(k.id, iso);
         if(est){ dias++; if(est==='presente')pres++; if(est==='ausente')aus++; if(est==='justificado')just++; }
       });
       return [k.nombre, dias, pres, aus, just, dias>0?Math.round(pres/dias*100)+'%':'—'];
@@ -1209,7 +1250,7 @@ function exportarExcel(){
       const row = [k.nombre];
       fechas.forEach(iso=>{
         if(!ninoInscritoEn(k, iso)){ row.push(''); return; }
-        const est = (S.days[iso].asistencia||{})[k.id];
+        const est = estadoAsistenciaEfectivo(k.id, iso);
         row.push(est==='presente'?'P':est==='ausente'?'A':est==='justificado'?'J':'');
       });
       wsData.push(row);
@@ -1304,7 +1345,16 @@ function exportarBackupJSON(){
   a.href = url; a.download = `EDV_backup_${todayISO()}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
+  localStorage.setItem(LSP+'lastBackup', todayISO());
   toast('Copia de seguridad descargada (no incluye fotos)');
+}
+// Días transcurridos desde la última exportación (null si nunca se ha exportado).
+function diasDesdeUltimoBackup(){
+  const last = localStorage.getItem(LSP+'lastBackup');
+  if(!last) return null;
+  const d1 = new Date(last+'T00:00:00Z');
+  const d2 = new Date(todayISO()+'T00:00:00Z');
+  return Math.round((d2-d1)/86400000);
 }
 function borrarTodosLosDatos(){
   if(!confirm('Esto borrará niños, asistencia, actividades y fotos de este dispositivo. ¿Seguro?')) return;
@@ -1326,7 +1376,8 @@ function renderModal(){
       <div class="mtitle">Nueva actividad</div>
       <div class="msub">Añade el nombre; después podrás escribir notas y generar la observación con IA.</div>
       <div class="fg"><label class="fl">Nombre de la actividad</label>
-        <input class="fi" id="m-act-nombre" value="${esc(m.nombre||'')}" placeholder="Ej: Datchball, piscina, taller de manualidades..." oninput="S.modal.nombre=this.value">
+        <input class="fi" id="m-act-nombre" list="dl-actividades" value="${esc(m.nombre||'')}" placeholder="Ej: Datchball, piscina, taller de manualidades..." oninput="S.modal.nombre=this.value">
+        <datalist id="dl-actividades">${nombresActividadesPrevias().map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
       </div>
       <button type="button" class="btn-p" onclick="confirmarNuevaActividad()">Añadir</button>
       <button type="button" class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
@@ -1387,6 +1438,9 @@ function renderModal(){
         <div class="fg"><label class="fl">Hasta</label>
           <input class="fi" type="date" id="m-aus-hasta" value="${m.hasta||''}" oninput="S.modal.hasta=this.value">
         </div>
+      </div>
+      <div class="fg"><label class="fl">Motivo (opcional)</label>
+        <input class="fi" id="m-aus-motivo" placeholder="Ej: vacaciones familiares, cita médica..." value="${esc(m.motivo||'')}" oninput="S.modal.motivo=this.value">
       </div>
       <button type="button" class="btn-p" onclick="guardarAusencia()">Guardar</button>
       ${m.id?`<button type="button" class="btn-d" onclick="borrarAusencia('${m.id}')">Eliminar periodo</button>`:''}
