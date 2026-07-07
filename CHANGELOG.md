@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.12] — 2026-07-07
+
+### Cambiado
+- Si un niño/a tiene una ausencia justificada activa ese día y todavía no se ha marcado nada, su asistencia aparece ya como "Justificado" por defecto (antes solo se mostraba un aviso 🟡, pero había que marcarlo a mano). Se puede cambiar en cualquier momento tocando su botón de asistencia, igual que cualquier otra marca.
+
 ## [1.0.11] — 2026-07-07
 
 ### Cambiado

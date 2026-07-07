@@ -280,7 +280,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.11
+   EDV · Escuela de Verano de Jaca — v1.0.12
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -487,9 +487,21 @@ function getDay(iso){
   if(!S.days[iso]){
     S.days[iso] = {valEstrellas:0, valTexto:'', actividades:[], asistencia:{}};
   }
-  if(!S.days[iso].actividades) S.days[iso].actividades=[];
-  if(!S.days[iso].asistencia) S.days[iso].asistencia={};
-  return S.days[iso];
+  const day = S.days[iso];
+  if(!day.actividades) day.actividades=[];
+  if(!day.asistencia) day.asistencia={};
+  // Si un niño/a tiene una ausencia justificada activa ese día y todavía no
+  // se ha marcado nada, se rellena como "Justificado" por defecto — se puede
+  // cambiar tocando su botón de asistencia, igual que cualquier otra marca.
+  let cambiado = false;
+  ninosDelDia(iso).forEach(k=>{
+    if(!Object.prototype.hasOwnProperty.call(day.asistencia, k.id) && ausenciaEnFecha(k.id, iso)){
+      day.asistencia[k.id] = 'justificado';
+      cambiado = true;
+    }
+  });
+  if(cambiado) saveDays();
+  return day;
 }
 
 // ── Toast ──────────────────────────────────────────────────────

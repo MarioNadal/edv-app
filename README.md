@@ -6,7 +6,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 
 - **Repo:** (pendiente de crear — repo privado recomendado, ver nota de privacidad más abajo)
 - **Grupo gestionado:** 2014 (curso de la Escuela de Verano 2026)
-- **Versión estable actual:** v1.0.11
+- **Versión estable actual:** v1.0.12
 
 ## 1. Qué hace
 
@@ -85,6 +85,7 @@ Esta app maneja nombres, asistencia y fotos de menores. Aunque los datos reales 
 | v1.0.8 | ✅ Publicada | Botones de asistencia rediseñados (segmentado, estilo Kortline), rango de fechas para ausencias justificadas |
 | v1.0.9 | ✅ Publicada | Asistencia con un solo botón cíclico por niño/a (Sin marcar/Presente/Ausente/Justificado) |
 | v1.0.10 | ✅ Publicada | Marcado masivo de asistencia (todos presentes/ausentes/justificados de golpe) |
-| v1.0.11 | ✅ Esta versión | Sección "Ausencias" de grupo: varios periodos justificados por niño/a, fuera del alta del niño/a |
+| v1.0.11 | ✅ Publicada | Sección "Ausencias" de grupo: varios periodos justificados por niño/a, fuera del alta del niño/a |
+| v1.0.12 | ✅ Esta versión | Auto-marcado como "Justificado" si hay una ausencia activa ese día y aún no se ha marcado nada |
 | v1.1.0 | 💡 Idea | Gráficas de asistencia, gestión de varios grupos |
 | v2.0.0 | 💡 Idea | Backend ligero para sincronizar entre dispositivos del equipo de monitores |

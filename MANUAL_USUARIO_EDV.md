@@ -26,7 +26,7 @@ Puedes editar o eliminar a un niño/a en cualquier momento tocando su fila. Elim
 
 Si un niño/a avisa con antelación de que va a faltar un tiempo, apúntalo en la pestaña **Ausencias** (no en su ficha, para poder guardar varios periodos distintos a lo largo del verano si hace falta). Pulsa `+`, elige el niño/a y pon la fecha "Desde" y/o "Hasta" que se sepan (puedes rellenar solo una de las dos si no conoces la otra).
 
-Cada periodo se muestra con su estado — **Activa hoy**, **Próxima** o **Finalizada** — y aparece como recordatorio 🟡 tanto en la lista de Niños como junto al nombre en la Asistencia de "Hoy" (solo en los días dentro de ese rango). La app no marca la asistencia sola: es solo un aviso para que no se te olvide y la marques tú cada día con el botón de asistencia.
+Cada periodo se muestra con su estado — **Activa hoy**, **Próxima** o **Finalizada** — y aparece como recordatorio 🟡 tanto en la lista de Niños como junto al nombre en la Asistencia de "Hoy" (solo en los días dentro de ese rango). Además, si ese día todavía no habías marcado nada para ese niño/a, la asistencia aparece ya puesta como "Justificado" en cuanto entras en la pantalla — puedes cambiarla en cualquier momento tocando su botón de asistencia, por ejemplo si al final sí ha venido.
 
 ## 4. El día a día (pestaña "Hoy")
 
