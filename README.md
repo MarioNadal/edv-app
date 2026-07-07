@@ -6,20 +6,22 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 
 - **Repo:** (pendiente de crear — repo privado recomendado, ver nota de privacidad más abajo)
 - **Grupo gestionado:** 2014 (curso de la Escuela de Verano 2026)
-- **Versión estable actual:** v1.1.0
+- **Versión estable actual:** v1.2.0
 
 ## 1. Qué hace
 
 - Alta de niños y niñas con periodo de inscripción flexible: julio completo, agosto completo, o semanas sueltas (para quienes no vienen el mes entero).
-- Pase de lista diario (presente / ausente / justificado) mostrando solo a quienes están inscritos ese día.
+- Pase de lista diario (presente / ausente) mostrando solo a quienes están inscritos ese día.
 - Valoración colectiva del día (1–5 estrellas + texto libre).
-- Actividades del día: nombre, notas rápidas del monitor, y un botón para generar la observación redactada con IA a partir de esas notas.
+- Actividades del día: nombre (con autocompletado de las ya usadas), notas rápidas del monitor, y un botón para generar la observación redactada con IA a partir de esas notas.
 - Fotos por actividad, con visor a tamaño completo y descarga individual.
-- Ausencias justificadas: sección de grupo con periodos (varios por niño/a, con motivo opcional) para avisos con antelación de que un niño/a va a faltar. Si el día está dentro del periodo, la asistencia se rellena sola como "Justificado" (editable en cualquier momento).
+- Ausencias justificadas: sección de grupo con periodos (varios por niño/a, con motivo opcional) para avisos con antelación de que un niño/a va a faltar. Si el día está dentro del periodo, la asistencia se rellena sola como "Ausente" (editable en cualquier momento), con el motivo visible como nota.
+- Archivar niño/a en vez de solo eliminar: conserva su historial y estadísticas, con opción de reactivar.
+- Compartir el resumen del día (asistencia + valoración + observaciones) como texto, listo para WhatsApp/email.
 - Aviso si llevas 7 días o más sin exportar una copia de seguridad.
 - Historial navegable por día, con filtro por mes.
-- Estadísticas de asistencia por niño/a y exportación a PDF y Excel.
-- Copia de seguridad manual en JSON (niños, asistencia, actividades — no incluye fotos).
+- Estadísticas de asistencia por niño/a, con exportación a PDF (informe de grupo con % coloreado y apéndice de motivos, o ficha individual por niño/a) y a Excel.
+- Copia de seguridad manual en JSON (niños, asistencia, actividades, ausencias — no incluye fotos).
 
 ## 2. Lo que NO hace (fuera de alcance en v1.0.0)
 
@@ -49,6 +51,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 | `edv:kids` | Lista de niños y niñas con su periodo de inscripción |
 | `edv:days` | Registro diario: asistencia, valoración colectiva, actividades y notas/observaciones |
 | `edv:ausencias` | Periodos de ausencia justificada (varios por niño/a) |
+| `edv:lastBackup` | Fecha de la última copia de seguridad exportada (para el aviso en "Hoy") |
 | `edv:logo` | Logo del programa (base64) |
 | `edv:apikey` | Clave de API de Anthropic (ver aviso de seguridad) |
 | `edv:aimodel` | Modelo de IA seleccionado |
@@ -88,6 +91,7 @@ Esta app maneja nombres, asistencia y fotos de menores. Aunque los datos reales 
 | v1.0.10 | ✅ Publicada | Marcado masivo de asistencia (todos presentes/ausentes/justificados de golpe) |
 | v1.0.11 | ✅ Publicada | Sección "Ausencias" de grupo: varios periodos justificados por niño/a, fuera del alta del niño/a |
 | v1.0.12 | ✅ Publicada | Auto-marcado como "Justificado" si hay una ausencia activa ese día y aún no se ha marcado nada |
-| v1.1.0 | ✅ Esta versión | Motivo en ausencias, foto en Asistencia, aviso de copia de seguridad, estadísticas/exports corregidos, autocompletado de actividades |
-| v1.2.0 | 💡 Idea | Gráficas de asistencia, gestión de varios grupos |
+| v1.1.0 | ✅ Publicada | Motivo en ausencias, foto en Asistencia, aviso de copia de seguridad, estadísticas/exports corregidos, autocompletado de actividades |
+| v1.2.0 | ✅ Esta versión | Asistencia simplificada a Presente/Ausente, archivar niño/a, compartir resumen del día, ficha PDF individual, PDF de grupo mucho más cuidado |
+| v1.3.0 | 💡 Idea | Gráficas de asistencia, gestión de varios grupos |
 | v2.0.0 | 💡 Idea | Backend ligero para sincronizar entre dispositivos del equipo de monitores |

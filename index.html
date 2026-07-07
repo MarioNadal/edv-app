@@ -196,14 +196,12 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .att-cycle-none{background:var(--s2);color:var(--td);border:1px solid var(--border);}
 .att-cycle-presente{background:var(--green);color:#08150f;}
 .att-cycle-ausente{background:var(--red);color:#fff;}
-.att-cycle-justificado{background:var(--amber);color:#241705;}
 
 .bulk-row{display:flex;gap:6px;margin-bottom:8px;}
 .bulk-btn{flex:1;padding:9px 4px;border-radius:8px;border:1px solid var(--border);background:var(--s2);font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:transform .1s ease,background .15s ease;font-family:var(--font-b);}
 .bulk-btn:active{transform:scale(.95);}
 .bulk-btn.bp{color:var(--green);}
 .bulk-btn.ba{color:var(--red);}
-.bulk-btn.bj{color:var(--amber);}
 .bulk-reset{display:block;width:100%;background:transparent;border:none;color:var(--td);font-size:11px;font-weight:600;cursor:pointer;padding:4px 0 12px;text-align:center;}
 .bulk-reset:active{opacity:.6;}
 
@@ -281,7 +279,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.1.0
+   EDV · Escuela de Verano de Jaca — v1.2.0
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -298,6 +296,7 @@ let S = {
   ausencias: lsGet('ausencias', []),   // [{id, kidId, desde, hasta}] — periodos de ausencia justificada
   fecha: todayISO(),
   histMesFiltro: 'todos',
+  ninosFiltro: 'activos',   // 'activos' | 'archivados' — filtro de la lista de Niños
   modal: null,       // {tipo, ...datos}
 };
 
@@ -330,6 +329,24 @@ let S = {
   });
   if(cambiadoKids) saveKids();
   if(cambiadoAus) saveAusencias();
+})();
+
+// Migración: se elimina el estado "Justificado" como marca de asistencia
+// independiente (no aportaba nada distinto de "Ausente" a efectos de
+// estadísticas). El motivo, si se conocía, ya vive en S.ausencias. Las
+// marcas de días ya guardados con "justificado" pasan a "ausente".
+(function migrarJustificadoAAusente(){
+  let cambiado = false;
+  Object.values(S.days).forEach(day=>{
+    if(!day.asistencia) return;
+    Object.keys(day.asistencia).forEach(kidId=>{
+      if(day.asistencia[kidId]==='justificado'){
+        day.asistencia[kidId] = 'ausente';
+        cambiado = true;
+      }
+    });
+  });
+  if(cambiado) saveDays();
 })();
 
 function saveCfg(){ lsSet('cfg', S.cfg); }
@@ -465,13 +482,16 @@ function ausenciaProximaOActiva(kidId){
   const futuras = ausenciasDeNino(kidId).filter(a=>a.desde && a.desde>hoy);
   return futuras.length ? futuras[0] : null;
 }
+// Texto informativo de un periodo de ausencia justificada (fechas + motivo).
+// Ya no existe un estado de asistencia "Justificado" separado — esto es solo
+// contexto: la marca real del día es Presente/Ausente/Sin marcar.
 function formatAusencia(a){
   if(!a) return '';
   const f = iso => fmtDDMM(new Date(iso+'T00:00:00Z'));
   let txt;
-  if(a.desde && a.hasta) txt = `Justificado del ${f(a.desde)} al ${f(a.hasta)}`;
-  else if(a.hasta) txt = `Justificado hasta el ${f(a.hasta)}`;
-  else txt = `Justificado desde el ${f(a.desde)}`;
+  if(a.desde && a.hasta) txt = `Ausencia justificada del ${f(a.desde)} al ${f(a.hasta)}`;
+  else if(a.hasta) txt = `Ausencia justificada hasta el ${f(a.hasta)}`;
+  else txt = `Ausencia justificada desde el ${f(a.desde)}`;
   if(a.motivo) txt += ' — ' + esc(a.motivo);
   return txt;
 }
@@ -485,20 +505,22 @@ function ninoInscritoEn(kid, iso){
   return (kid.semanas||[]).includes(wk);
 }
 function ninosDelDia(iso){
-  return S.kids.filter(k=>ninoInscritoEn(k, iso));
+  // Los niños/as archivados no aparecen en Hoy, aunque su periodo cubra la fecha.
+  return S.kids.filter(k=>!k.archivado && ninoInscritoEn(k, iso));
 }
 // Estado de asistencia "efectivo" para un niño/a en una fecha: la marca
 // explícita si existe (aunque sea "sin marcar" tras un reset), o si nunca se
-// ha tocado ese día, "justificado" cuando hay una ausencia activa. Se usa
-// tanto para rellenar Hoy como para que Historial/Estadísticas/exportaciones
-// sean correctas aunque ese día no se haya abierto nunca en "Hoy".
+// ha tocado ese día, "ausente" cuando hay una ausencia justificada activa
+// (el motivo, si lo hay, se consulta aparte en Ausencias). Se usa tanto para
+// rellenar Hoy como para que Historial/Estadísticas/exportaciones sean
+// correctas aunque ese día no se haya abierto nunca en "Hoy".
 function estadoAsistenciaEfectivo(kidId, iso){
   const day = S.days[iso];
   const asistencia = (day && day.asistencia) || {};
   if(Object.prototype.hasOwnProperty.call(asistencia, kidId)){
     return asistencia[kidId] || null;
   }
-  if(ausenciaEnFecha(kidId, iso)) return 'justificado';
+  if(ausenciaEnFecha(kidId, iso)) return 'ausente';
   return null;
 }
 function getDay(iso){
@@ -509,12 +531,12 @@ function getDay(iso){
   if(!day.actividades) day.actividades=[];
   if(!day.asistencia) day.asistencia={};
   // Si un niño/a tiene una ausencia justificada activa ese día y todavía no
-  // se ha marcado nada, se rellena como "Justificado" por defecto — se puede
+  // se ha marcado nada, se rellena como "Ausente" por defecto — se puede
   // cambiar tocando su botón de asistencia, igual que cualquier otra marca.
   let cambiado = false;
   ninosDelDia(iso).forEach(k=>{
-    if(!Object.prototype.hasOwnProperty.call(day.asistencia, k.id) && estadoAsistenciaEfectivo(k.id, iso)==='justificado'){
-      day.asistencia[k.id] = 'justificado';
+    if(!Object.prototype.hasOwnProperty.call(day.asistencia, k.id) && estadoAsistenciaEfectivo(k.id, iso)==='ausente'){
+      day.asistencia[k.id] = 'ausente';
       cambiado = true;
     }
   });
@@ -651,14 +673,12 @@ function renderHoy(){
   }
 
   if(ninos.length>0){
-    const presentes = ninos.filter(k=>day.asistencia[k.id]==='presente').length;
-    const ausentes = ninos.filter(k=>day.asistencia[k.id]==='ausente').length;
-    const justificados = ninos.filter(k=>day.asistencia[k.id]==='justificado').length;
-    const sinMarcar = ninos.length - presentes - ausentes - justificados;
+    const presentes = ninos.filter(k=>attEstadoInfo(day.asistencia[k.id]).label==='Presente').length;
+    const ausentes = ninos.filter(k=>attEstadoInfo(day.asistencia[k.id]).label==='Ausente').length;
+    const sinMarcar = ninos.length - presentes - ausentes;
     html += `<div class="day-summary">
       <div class="day-summary-item"><div class="day-summary-val green">${presentes}</div><div class="day-summary-lbl">Presentes</div></div>
       <div class="day-summary-item"><div class="day-summary-val red">${ausentes}</div><div class="day-summary-lbl">Ausentes</div></div>
-      <div class="day-summary-item"><div class="day-summary-val amber">${justificados}</div><div class="day-summary-lbl">Justif.</div></div>
       <div class="day-summary-item"><div class="day-summary-val">${sinMarcar}</div><div class="day-summary-lbl">Sin marcar</div></div>
     </div>`;
   }
@@ -673,7 +693,6 @@ function renderHoy(){
     <div class="bulk-row">
       <button type="button" class="bulk-btn bp" onclick="marcarTodos('presente')">✅ Presentes</button>
       <button type="button" class="bulk-btn ba" onclick="marcarTodos('ausente')">❌ Ausentes</button>
-      <button type="button" class="bulk-btn bj" onclick="marcarTodos('justificado')">🟡 Justif.</button>
     </div>
     <button type="button" class="bulk-reset" onclick="marcarTodos(null)">↺ Quitar todas las marcas de hoy</button>`;
     ninos.forEach(k=>{
@@ -710,9 +729,42 @@ function renderHoy(){
     });
   }
   html += `<button class="btn-p" onclick="abrirModalActividad()">+ Añadir actividad</button>`;
+  html += `<button class="btn-s" onclick="compartirResumenDia()">📤 Compartir resumen del día</button>`;
 
   html += `</div>`;
   return html;
+}
+// Junta asistencia, valoración y observaciones de actividades en un único
+// texto para compartir (WhatsApp, email...) sin copiar actividad por actividad.
+async function compartirResumenDia(){
+  const iso = S.fecha;
+  const day = getDay(iso);
+  const ninos = ninosDelDia(iso);
+  const presentes = ninos.filter(k=>attEstadoInfo(day.asistencia[k.id]).label==='Presente').length;
+  const ausentes = ninos.filter(k=>attEstadoInfo(day.asistencia[k.id]).label==='Ausente').length;
+  const sinMarcar = ninos.length - presentes - ausentes;
+
+  let txt = `${S.cfg.nombre} · Grupo ${S.cfg.grupo}\n${fmtFechaEs(iso)}\n\n`;
+  txt += `Asistencia: ${presentes} presentes / ${ausentes} ausentes`;
+  if(sinMarcar>0) txt += ` / ${sinMarcar} sin marcar`;
+  txt += `\n`;
+  if(day.valEstrellas) txt += `Valoración del día: ${'★'.repeat(day.valEstrellas)}${'☆'.repeat(5-day.valEstrellas)}\n`;
+  if(day.valTexto) txt += `${day.valTexto}\n`;
+  if(day.actividades.length>0){
+    txt += `\nActividades:\n`;
+    day.actividades.forEach(act=>{
+      txt += `\n• ${act.nombre||'Sin título'}\n`;
+      if(act.obs) txt += `${act.obs}\n`;
+    });
+  }
+  txt = txt.trim();
+
+  if(navigator.share){
+    try{ await navigator.share({title:`${S.cfg.nombre} · ${fmtFechaEs(iso)}`, text:txt}); return; }
+    catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  try{ await copiarAlPortapapeles(txt); toast('Resumen del día copiado'); }
+  catch(e){ toast('No se pudo copiar. Revisa los permisos del navegador.'); }
 }
 
 function renderActividad(iso, act){
@@ -741,11 +793,11 @@ function renderActividad(iso, act){
 }
 
 // Botón único de asistencia: cada toque avanza al siguiente estado del ciclo.
-const ATT_CICLO = [null, 'presente', 'ausente', 'justificado'];
+const ATT_CICLO = [null, 'presente', 'ausente'];
 function attEstadoInfo(est){
   if(est==='presente') return {cls:'att-cycle-presente', label:'Presente'};
-  if(est==='ausente') return {cls:'att-cycle-ausente', label:'Ausente'};
-  if(est==='justificado') return {cls:'att-cycle-justificado', label:'Justificado'};
+  // 'justificado' se acepta como sinónimo legacy por si queda algún dato sin migrar.
+  if(est==='ausente' || est==='justificado') return {cls:'att-cycle-ausente', label:'Ausente'};
   return {cls:'att-cycle-none', label:'Sin marcar'};
 }
 function ciclarAsistencia(kidId){
@@ -758,7 +810,6 @@ function ciclarAsistencia(kidId){
 function attNombrePlural(estado){
   if(estado==='presente') return 'presentes';
   if(estado==='ausente') return 'ausentes';
-  if(estado==='justificado') return 'justificados';
   return 'sin marcar';
 }
 // Marca de golpe a todos los niños/as inscritos ese día con el mismo estado
@@ -974,15 +1025,28 @@ Redacta la observación de esta actividad siguiendo las indicaciones de estilo. 
 // ================= VISTA: NIÑOS =================
 function renderNinos(){
   let html = `<div class="content">`;
+  const activos = S.kids.filter(k=>!k.archivado);
+  const archivados = S.kids.filter(k=>k.archivado);
+  const filtro = archivados.length>0 ? (S.ninosFiltro||'activos') : 'activos';
+  const lista = filtro==='archivados' ? archivados : activos;
+
   html += `<div class="stat-grid">
-    <div class="sbox"><div class="sval">${S.kids.length}</div><div class="slbl">Niños/as</div></div>
-    <div class="sbox"><div class="sval">${S.kids.filter(k=>k.julioCompleto).length}</div><div class="slbl">Julio completo</div></div>
+    <div class="sbox"><div class="sval">${activos.length}</div><div class="slbl">Niños/as activos</div></div>
+    <div class="sbox"><div class="sval">${activos.filter(k=>k.julioCompleto).length}</div><div class="slbl">Julio completo</div></div>
   </div>`;
-  if(S.kids.length===0){
-    html += `<div class="empty"><div class="ei">🧒</div>Todavía no has añadido ningún niño o niña del grupo ${esc(S.cfg.grupo)}.</div>`;
+
+  if(archivados.length>0){
+    html += `<div class="tab-row">
+      <button class="tab-btn ${filtro==='activos'?'on':''}" onclick="setNinosFiltro('activos')">Activos (${activos.length})</button>
+      <button class="tab-btn ${filtro==='archivados'?'on':''}" onclick="setNinosFiltro('archivados')">Archivados (${archivados.length})</button>
+    </div>`;
+  }
+
+  if(lista.length===0){
+    html += `<div class="empty"><div class="ei">🧒</div>${filtro==='archivados'?'No hay niños/as archivados.':'Todavía no has añadido ningún niño o niña del grupo '+esc(S.cfg.grupo)+'.'}</div>`;
   } else {
     html += `<div class="card">`;
-    S.kids.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).forEach(k=>{
+    lista.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).forEach(k=>{
       const semanas = (k.semanas||[]).length;
       let meta = [];
       if(k.julioCompleto) meta.push('Julio completo');
@@ -993,7 +1057,7 @@ function renderNinos(){
       html += `<div class="kid-row" onclick="abrirModalNino('${k.id}')">
         <div class="kid-avatar">${k.foto?`<img src="${k.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:esc((k.nombre||'?')[0].toUpperCase())}</div>
         <div style="flex:1">
-          <div class="kid-name">${esc(k.nombre)}</div>
+          <div class="kid-name">${esc(k.nombre)}${k.archivado?' <span style="color:var(--td);font-weight:600;font-size:11px">(archivado)</span>':''}</div>
           <div class="kid-meta">${meta.join(' · ')}</div>
           ${ausInfo?`<div class="kid-note kid-note-just">🟡 ${formatAusencia(ausInfo)}</div>`:''}
           ${k.obs?`<div class="kid-note">📌 ${esc(k.obs)}</div>`:''}
@@ -1007,9 +1071,10 @@ function renderNinos(){
   html += `</div>`;
   return html;
 }
+function setNinosFiltro(f){ S.ninosFiltro=f; render(); }
 
 function abrirModalNino(kidId){
-  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null, obs:''};
+  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null, obs:'', archivado:false};
   S.modal = {tipo:'nino', kid: JSON.parse(JSON.stringify(kid))};
   render();
 }
@@ -1027,7 +1092,10 @@ function guardarNino(){
   const nombre = document.getElementById('m-nino-nombre').value.trim();
   if(!nombre){ toast('Ponle un nombre al niño o niña'); return; }
   const k = S.modal.kid;
-  k.nombre = nombre.toUpperCase();
+  const nombreMayus = nombre.toUpperCase();
+  const duplicado = S.kids.some(x=>x.id!==k.id && x.nombre===nombreMayus);
+  if(duplicado && !confirm(`Ya hay un niño/a registrado como "${nombreMayus}". ¿Guardar igualmente?`)) return;
+  k.nombre = nombreMayus;
   if(k.id){
     const idx = S.kids.findIndex(x=>x.id===k.id);
     S.kids[idx] = k;
@@ -1039,16 +1107,34 @@ function guardarNino(){
   S.modal=null; render();
   toast('Guardado');
 }
-function borrarNino(){
-  if(!confirm('¿Eliminar a este niño o niña? No se borrarán los registros de asistencia ya guardados.')) return;
+// Archivar (reversible): saca al niño/a de Niños/Hoy pero conserva su
+// historial de asistencia y sus estadísticas, a diferencia de eliminar.
+function archivarNino(){
+  if(!confirm('¿Archivar a este niño o niña? Dejará de aparecer en «Niños» y en «Hoy», pero se conserva su historial de asistencia y estadísticas. Podrás reactivarlo cuando quieras desde el filtro «Archivados».')) return;
+  const idx = S.kids.findIndex(k=>k.id===S.modal.kid.id);
+  if(idx>=0){ S.kids[idx].archivado = true; saveKids(); }
+  S.modal=null; render();
+  toast('Niño/a archivado');
+}
+function reactivarNino(){
+  const idx = S.kids.findIndex(k=>k.id===S.modal.kid.id);
+  if(idx>=0){ S.kids[idx].archivado = false; saveKids(); }
+  S.modal=null; render();
+  toast('Niño/a reactivado');
+}
+// Eliminación permanente (poco frecuente): a diferencia de "Archivar", esto
+// sí quita al niño/a de las ausencias registradas. Los días ya guardados en
+// el historial no se tocan, pero al no estar en S.kids dejan de verse en
+// Estadísticas y exportaciones.
+function borrarNinoDefinitivo(){
+  if(!confirm('Esto elimina PERMANENTEMENTE a este niño/a, incluidas sus ausencias registradas. A diferencia de «Archivar», no se puede deshacer y dejará de verse en Estadísticas. ¿Seguro?')) return;
   const kidId = S.modal.kid.id;
   S.kids = S.kids.filter(k=>k.id!==kidId);
   saveKids();
-  // Las ausencias justificadas son recordatorios de cara al futuro, no
-  // registros históricos, así que sí se eliminan al borrar el niño/a.
   S.ausencias = S.ausencias.filter(a=>a.kidId!==kidId);
   saveAusencias();
   S.modal=null; render();
+  toast('Niño/a eliminado definitivamente');
 }
 function subirFotoNino(){ document.getElementById('fileKidPhoto').click(); }
 
@@ -1149,16 +1235,15 @@ function renderHistorial(){
     html += `<div class="card">`;
     filtradas.forEach(iso=>{
       const day = S.days[iso];
-      let presentes=0, ausentes=0, justificados=0;
+      let presentes=0, ausentes=0;
       ninosDelDia(iso).forEach(k=>{
         const est = estadoAsistenciaEfectivo(k.id, iso);
         if(est==='presente') presentes++;
         else if(est==='ausente') ausentes++;
-        else if(est==='justificado') justificados++;
       });
       html += `<div class="hist-row" onclick="irADia('${iso}')">
         <div class="hist-date">${fmtFechaEs(iso)}</div>
-        <div class="hist-meta">${day.actividades.length} actividad(es) · ${presentes} presentes / ${ausentes} ausentes / ${justificados} justif. ${day.valEstrellas?(' · '+'★'.repeat(day.valEstrellas)):''}</div>
+        <div class="hist-meta">${day.actividades.length} actividad(es) · ${presentes} presentes / ${ausentes} ausentes ${day.valEstrellas?(' · '+'★'.repeat(day.valEstrellas)):''}</div>
       </div>`;
     });
     html += `</div>`;
@@ -1177,7 +1262,7 @@ function renderEstadisticas(){
 
   html += `<div class="stat-grid">
     <div class="sbox"><div class="sval">${totalDias}</div><div class="slbl">Días registrados</div></div>
-    <div class="sbox"><div class="sval">${S.kids.length}</div><div class="slbl">Niños/as</div></div>
+    <div class="sbox"><div class="sval">${S.kids.filter(k=>!k.archivado).length}</div><div class="slbl">Niños/as activos</div></div>
   </div>`;
 
   html += `<div class="export-bar">
@@ -1185,7 +1270,8 @@ function renderEstadisticas(){
     <button class="btn-xxls" onclick="exportarExcel()">📊 Exportar Excel</button>
   </div>`;
 
-  html += `<div class="fl" style="margin-bottom:8px">Asistencia por niño/a</div>`;
+  html += `<div class="fl" style="margin-bottom:2px">Asistencia por niño/a</div>
+  <div class="msub" style="margin-bottom:10px;font-size:11.5px">Toca un niño/a para exportar su ficha individual en PDF.</div>`;
   if(S.kids.length===0){
     html += `<div class="empty" style="padding:24px 8px">Añade niños y niñas para ver sus estadísticas.</div>`;
   } else {
@@ -1198,10 +1284,10 @@ function renderEstadisticas(){
         if(est){ dias++; if(est==='presente') pres++; }
       });
       const pct = dias>0 ? Math.round(pres/dias*100) : 0;
-      html += `<div class="kid-row" style="cursor:default">
+      html += `<div class="kid-row" onclick="exportarFichaPDF('${k.id}')">
         <div class="kid-avatar">${esc((k.nombre||'?')[0].toUpperCase())}</div>
         <div style="flex:1">
-          <div class="kid-name">${esc(k.nombre)}</div>
+          <div class="kid-name">${esc(k.nombre)}${k.archivado?' <span style="color:var(--td);font-weight:600;font-size:11px">(archivado)</span>':''}</div>
           <div class="kid-meta">${pres}/${dias} días presente</div>
         </div>
         <div class="sval" style="font-size:20px">${dias>0?pct+'%':'—'}</div>
@@ -1213,33 +1299,177 @@ function renderEstadisticas(){
   return html;
 }
 
+// Colores de marca reutilizados en las cabeceras y detalles del PDF.
+const PDF_TEAL_DARK = [11,93,82], PDF_AMBER = [245,166,35], PDF_DARK=[8,16,20],
+      PDF_GRAY=[110,140,135], PDF_GREEN=[22,163,74], PDF_ORANGE=[217,119,6], PDF_RED=[220,38,38],
+      PDF_TEAL_BG=[236,247,246], PDF_AMBER_BG=[255,250,240];
+
+// Cabecera común (logo si existe, título, subtítulo, línea) para los PDF de EDV.
+function pdfCabecera(doc, titulo, subtitulo){
+  const pageW = doc.internal.pageSize.getWidth();
+  const logoData = localStorage.getItem(LSP+'logo');
+  let textX = 14;
+  if(logoData){
+    try{ doc.addImage(logoData, 'JPEG', 14, 9, 17, 17); textX = 35; }catch(e){}
+  }
+  doc.setTextColor(...PDF_DARK);
+  doc.setFont('helvetica','bold'); doc.setFontSize(17);
+  doc.text(titulo, textX, 17);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  doc.setTextColor(...PDF_GRAY);
+  doc.text(subtitulo, textX, 23);
+  doc.setDrawColor(...PDF_TEAL_DARK); doc.setLineWidth(0.8);
+  doc.line(14, 29, pageW-14, 29);
+  return pageW;
+}
+// Pie de página (fecha de generación + nº de página) en todas las páginas.
+function pdfPiePagina(doc){
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pageCount;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.setTextColor(...PDF_GRAY);
+    doc.text('Generado el '+new Date().toLocaleDateString('es-ES'), 14, pageH-8);
+    doc.text(`Página ${i} de ${pageCount}`, pageW-14, pageH-8, {align:'right'});
+  }
+}
+// Tabla de ausencias justificadas (niño/a, fechas, motivo) usada como apéndice
+// tanto en el informe de grupo como en la ficha individual.
+function pdfTablaAusencias(doc, ausencias, startY, conNombre){
+  const f = iso => iso ? fmtDDMM(new Date(iso+'T00:00:00Z')) : '—';
+  const head = conNombre ? ['Niño/a','Desde','Hasta','Motivo'] : ['Desde','Hasta','Motivo'];
+  const body = ausencias.map(a=>{
+    const fila = [f(a.desde), f(a.hasta), a.motivo||'—'];
+    if(conNombre){ const kid = S.kids.find(k=>k.id===a.kidId); fila.unshift(kid?kid.nombre:'(eliminado)'); }
+    return fila;
+  });
+  doc.autoTable({
+    startY,
+    head:[head],
+    body,
+    styles:{fontSize:8.5, textColor:PDF_DARK},
+    headStyles:{fillColor:PDF_AMBER, textColor:[36,23,5], fontStyle:'bold'},
+    alternateRowStyles:{fillColor:PDF_AMBER_BG},
+  });
+}
+
 function exportarPDF(){
   try{
     const {jsPDF} = window.jspdf;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(`${S.cfg.nombre} · Grupo ${S.cfg.grupo}`, 14, 16);
-    doc.setFontSize(10);
-    doc.text('Informe de asistencia julio-agosto '+S.cfg.anio, 14, 22);
+    const pageW = pdfCabecera(doc, S.cfg.nombre, `Grupo ${S.cfg.grupo} · ${S.cfg.anio} · Informe de asistencia`);
+
     const fechas = Object.keys(S.days).sort();
-    const body = S.kids.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(k=>{
-      let dias=0, pres=0, aus=0, just=0;
+    const kidsActivos = S.kids.filter(k=>!k.archivado);
+    const kidsArchivados = S.kids.filter(k=>k.archivado);
+
+    let sumaPct=0, kidsConDias=0;
+    const filas = S.kids.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(k=>{
+      let dias=0, pres=0, aus=0;
       fechas.forEach(iso=>{
         if(!ninoInscritoEn(k, iso)) return;
         const est = estadoAsistenciaEfectivo(k.id, iso);
-        if(est){ dias++; if(est==='presente')pres++; if(est==='ausente')aus++; if(est==='justificado')just++; }
+        if(est){ dias++; if(est==='presente')pres++; else if(est==='ausente')aus++; }
       });
-      return [k.nombre, dias, pres, aus, just, dias>0?Math.round(pres/dias*100)+'%':'—'];
+      const pct = dias>0 ? Math.round(pres/dias*100) : null;
+      if(pct!==null){ sumaPct+=pct; kidsConDias++; }
+      return {nombre:k.nombre+(k.archivado?' (archivado)':''), dias, pres, aus, pct};
     });
+    const pctMedio = kidsConDias>0 ? Math.round(sumaPct/kidsConDias) : 0;
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...PDF_DARK);
+    doc.text(`Niños/as activos: ${kidsActivos.length}   ·   Archivados: ${kidsArchivados.length}   ·   Días registrados: ${fechas.length}   ·   % asistencia media: ${pctMedio}%`, 14, 36);
+
     doc.autoTable({
-      startY:28,
-      head:[['Nombre','Días','Presente','Ausente','Justificado','% asistencia']],
-      body,
-      styles:{fontSize:9}
+      startY:41,
+      head:[['Nombre','Días','Presente','Ausente','% asistencia']],
+      body: filas.map(f=>[f.nombre, f.dias, f.pres, f.aus, f.pct!==null?f.pct+'%':'—']),
+      styles:{fontSize:9, textColor:PDF_DARK},
+      headStyles:{fillColor:PDF_TEAL_DARK, textColor:[255,255,255], fontStyle:'bold'},
+      alternateRowStyles:{fillColor:PDF_TEAL_BG},
+      didParseCell: function(data){
+        if(data.section==='body' && data.column.index===4){
+          const pct = filas[data.row.index].pct;
+          if(pct!==null){
+            data.cell.styles.textColor = pct>=90?PDF_GREEN:(pct>=75?PDF_ORANGE:PDF_RED);
+            data.cell.styles.fontStyle='bold';
+          }
+        }
+      }
     });
+
+    if(S.ausencias.length>0){
+      let y2 = doc.lastAutoTable.finalY + 12;
+      if(y2 > doc.internal.pageSize.getHeight()-40){ doc.addPage(); y2=20; }
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...PDF_DARK);
+      doc.text('Ausencias justificadas registradas', 14, y2);
+      pdfTablaAusencias(doc, S.ausencias.slice().sort((a,b)=>(a.desde||'').localeCompare(b.desde||'')), y2+4, true);
+    }
+
+    pdfPiePagina(doc);
     doc.save(`EDV_${S.cfg.grupo}_informe.pdf`);
     toast('PDF exportado');
   }catch(e){ console.error(e); toast('Error al exportar PDF'); }
+}
+
+// Ficha individual de un niño/a: días, presente/ausente, % asistencia,
+// detalle día a día, sus ausencias justificadas registradas y sus observaciones.
+function exportarFichaPDF(kidId){
+  try{
+    const k = S.kids.find(x=>x.id===kidId);
+    if(!k){ toast('Niño/a no encontrado'); return; }
+    const {jsPDF} = window.jspdf;
+    const doc = new jsPDF();
+    pdfCabecera(doc, k.nombre, `${S.cfg.nombre} · Grupo ${S.cfg.grupo} · ${S.cfg.anio}${k.archivado?' · Archivado':''}`);
+
+    const fechas = Object.keys(S.days).sort();
+    let dias=0, pres=0, aus=0;
+    const filasDias = [];
+    fechas.forEach(iso=>{
+      if(!ninoInscritoEn(k, iso)) return;
+      const est = estadoAsistenciaEfectivo(k.id, iso);
+      if(est){ dias++; if(est==='presente')pres++; else if(est==='ausente')aus++; }
+      filasDias.push([fmtFechaEs(iso), est==='presente'?'Presente':est==='ausente'?'Ausente':'Sin marcar']);
+    });
+    const pct = dias>0 ? Math.round(pres/dias*100) : 0;
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...PDF_DARK);
+    doc.text(`Días inscrito: ${dias}   ·   Presente: ${pres}   ·   Ausente: ${aus}   ·   % asistencia: ${dias>0?pct+'%':'—'}`, 14, 36);
+
+    doc.autoTable({
+      startY:41,
+      head:[['Fecha','Estado']],
+      body: filasDias,
+      styles:{fontSize:8.5, textColor:PDF_DARK},
+      headStyles:{fillColor:PDF_TEAL_DARK, textColor:[255,255,255], fontStyle:'bold'},
+      alternateRowStyles:{fillColor:PDF_TEAL_BG},
+    });
+
+    const ausK = ausenciasDeNino(k.id);
+    if(ausK.length>0){
+      let y2 = doc.lastAutoTable.finalY + 12;
+      if(y2 > doc.internal.pageSize.getHeight()-40){ doc.addPage(); y2=20; }
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...PDF_DARK);
+      doc.text('Ausencias justificadas registradas', 14, y2);
+      pdfTablaAusencias(doc, ausK, y2+4, false);
+    }
+
+    if(k.obs){
+      let y3 = (doc.lastAutoTable ? doc.lastAutoTable.finalY : 41) + 12;
+      if(y3 > doc.internal.pageSize.getHeight()-40){ doc.addPage(); y3=20; }
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...PDF_DARK);
+      doc.text('Observaciones', 14, y3);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+      const pageW = doc.internal.pageSize.getWidth();
+      doc.text(doc.splitTextToSize(k.obs, pageW-28), 14, y3+7);
+    }
+
+    pdfPiePagina(doc);
+    doc.save(`EDV_${k.nombre.replace(/\s+/g,'_')}_ficha.pdf`);
+    toast('Ficha individual exportada');
+  }catch(e){ console.error(e); toast('Error al exportar la ficha'); }
 }
 
 function exportarExcel(){
@@ -1247,11 +1477,11 @@ function exportarExcel(){
     const fechas = Object.keys(S.days).sort();
     const wsData = [['Nombre', ...fechas.map(f=>f)]];
     S.kids.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).forEach(k=>{
-      const row = [k.nombre];
+      const row = [k.nombre+(k.archivado?' (archivado)':'')];
       fechas.forEach(iso=>{
         if(!ninoInscritoEn(k, iso)){ row.push(''); return; }
         const est = estadoAsistenciaEfectivo(k.id, iso);
-        row.push(est==='presente'?'P':est==='ausente'?'A':est==='justificado'?'J':'');
+        row.push(est==='presente'?'P':est==='ausente'?'A':'');
       });
       wsData.push(row);
     });
@@ -1417,7 +1647,11 @@ function renderModal(){
         <textarea class="fi" id="m-nino-obs" placeholder="Ej: no vendrá hasta el día 15, recogida solo por su madre, alergia a los frutos secos..." oninput="S.modal.kid.obs=this.value">${esc(k.obs)}</textarea>
       </div>
       <button type="button" class="btn-p" onclick="guardarNino()">Guardar</button>
-      ${k.id?`<button type="button" class="btn-d" onclick="borrarNino()">Eliminar niño/a</button>`:''}
+      ${k.id?(k.archivado
+        ? `<button type="button" class="btn-s" onclick="reactivarNino()">↩️ Reactivar niño/a</button>`
+        : `<button type="button" class="btn-d" onclick="archivarNino()">🗄️ Archivar niño/a</button>`
+      ):''}
+      ${k.id?`<div style="text-align:center;margin-top:10px"><span style="font-size:11.5px;color:var(--td);text-decoration:underline;cursor:pointer" onclick="borrarNinoDefinitivo()">Eliminar definitivamente (borra su historial de Estadísticas)</span></div>`:''}
       <button type="button" class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
   }
 

@@ -1,4 +1,4 @@
-# Manual de usuario — EDV (v1.1.0)
+# Manual de usuario — EDV (v1.2.0)
 
 ## 1. Primeros pasos
 
@@ -20,21 +20,23 @@ En **Niños**, pulsa el botón `+`. Para cada uno indica:
 - **Observaciones**: para cualquier otro recordatorio o cambio puntual que te comenten (por ejemplo, "recogida solo por su madre", una alergia, etc.). Se muestra con 📌 tanto en la lista de Niños como junto a su nombre en la lista de Asistencia de "Hoy".
 - Foto (opcional).
 
-Puedes editar o eliminar a un niño/a en cualquier momento tocando su fila. Eliminarlo no borra los registros de asistencia ya guardados en días anteriores, pero sí elimina sus ausencias justificadas pendientes (ver punto siguiente), ya que son avisos de cara al futuro.
+Puedes editar a un niño/a en cualquier momento tocando su fila. Si deja el grupo, lo normal es **archivarlo** en vez de eliminarlo (ver más abajo): conserva su historial de asistencia y sus estadísticas, y puedes reactivarlo si vuelve. Si ya has registrado un niño/a con un nombre igual, la app te avisa antes de guardar por si es un duplicado sin querer.
+
+**Archivar / reactivar / eliminar:** dentro de la ficha de un niño/a activo verás el botón **"🗄️ Archivar niño/a"** — lo saca de "Niños" y de "Hoy", pero mantiene todo su histórico visible en Estadísticas y en las exportaciones. En la pestaña Niños aparece entonces un filtro **Activos / Archivados** para verlo y, si hace falta, tocar **"↩️ Reactivar niño/a"** en su ficha. Si de verdad quieres borrarlo todo sin dejar rastro (incluidas sus ausencias registradas), usa el enlace pequeño **"Eliminar definitivamente"** al final de su ficha — a diferencia de archivar, esto no se puede deshacer y deja de aparecer en Estadísticas.
 
 ## 3. Ausencias justificadas
 
 Si un niño/a avisa con antelación de que va a faltar un tiempo, apúntalo en la pestaña **Ausencias** (no en su ficha, para poder guardar varios periodos distintos a lo largo del verano si hace falta). Pulsa `+`, elige el niño/a, pon la fecha "Desde" y/o "Hasta" que se sepan (puedes rellenar solo una de las dos si no conoces la otra) y, si quieres, un motivo breve (por ejemplo, "vacaciones familiares" o "cita médica").
 
-Cada periodo se muestra con su estado — **Activa hoy**, **Próxima** o **Finalizada** — y aparece como recordatorio 🟡 tanto en la lista de Niños como junto al nombre en la Asistencia de "Hoy" (solo en los días dentro de ese rango). Además, si ese día todavía no habías marcado nada para ese niño/a, la asistencia aparece ya puesta como "Justificado" en cuanto entras en la pantalla — puedes cambiarla en cualquier momento tocando su botón de asistencia, por ejemplo si al final sí ha venido.
+Cada periodo se muestra con su estado — **Activa hoy**, **Próxima** o **Finalizada** — y aparece como recordatorio 🟡 tanto en la lista de Niños como junto al nombre en la Asistencia de "Hoy" (solo en los días dentro de ese rango). Además, si ese día todavía no habías marcado nada para ese niño/a, la asistencia aparece ya puesta como "Ausente" en cuanto entras en la pantalla, con el motivo visible como nota — puedes cambiarla en cualquier momento tocando su botón de asistencia, por ejemplo si al final sí ha venido.
 
 ## 4. El día a día (pestaña "Hoy")
 
 Al abrir la app verás el día de hoy. Usa las flechas `‹` `›` para moverte a otro día (por ejemplo, para completar un día que se te olvidó).
 
-**Asistencia:** aparecen solo los niños y niñas inscritos ese día concreto. Cada uno tiene un único botón que cambia de color y de texto cada vez que lo tocas, en este orden: Sin marcar → Presente → Ausente → Justificado → Sin marcar (y vuelta a empezar). Arriba del todo tienes un resumen con el número de presentes, ausentes, justificados y sin marcar del día.
+**Asistencia:** aparecen solo los niños y niñas inscritos ese día concreto. Cada uno tiene un único botón que cambia de color y de texto cada vez que lo tocas, en este orden: Sin marcar → Presente → Ausente → Sin marcar (y vuelta a empezar). Arriba del todo tienes un resumen con el número de presentes, ausentes y sin marcar del día.
 
-Si un día viene (o falta) todo el grupo, usa los botones "Marcar todo el grupo" (Presentes / Ausentes / Justif.) para marcar a todos de golpe, o "Quitar todas las marcas de hoy" para empezar de cero. Estas acciones piden confirmación porque sustituyen cualquier marca que ya hubieras puesto ese día.
+Si un día viene (o falta) todo el grupo, usa los botones "Marcar todo el grupo" (Presentes / Ausentes) para marcar a todos de golpe, o "Quitar todas las marcas de hoy" para empezar de cero. Estas acciones piden confirmación porque sustituyen cualquier marca que ya hubieras puesto ese día.
 
 **Valoración colectiva:** puntúa el día con estrellas (1 a 5) y añade, si quieres, un comentario general sobre cómo ha ido el grupo.
 
@@ -46,16 +48,19 @@ Si un día viene (o falta) todo el grupo, usa los botones "Marcar todo el grupo"
 
 La IA nunca inventa incidencias que no hayas escrito en las notas: solo redacta a partir de lo que le indiques.
 
+**Compartir resumen del día:** al final de la pantalla, el botón "📤 Compartir resumen del día" junta la asistencia, la valoración colectiva y las observaciones de todas las actividades en un único texto, y abre la hoja de compartir del móvil (WhatsApp, email...) para mandarlo de una vez. Si el dispositivo no permite compartir, lo copia al portapapeles.
+
 ## 5. Historial
 
 En **Historial** puedes ver todos los días registrados, con filtro por Julio/Agosto. Tocar un día te lleva directamente a su vista de "Hoy" para revisarlo o completarlo.
 
 ## 6. Estadísticas y exportación
 
-En **Estadísticas** verás el porcentaje de asistencia de cada niño/a (calculado solo sobre los días en los que estaba inscrito). Desde ahí puedes:
+En **Estadísticas** verás el porcentaje de asistencia de cada niño/a (calculado solo sobre los días en los que estaba inscrito; los niños/as archivados también aparecen, marcados como "(archivado)"). Desde ahí puedes:
 
-- **Exportar PDF**: informe resumen con días, presentes, ausentes, justificados y % de asistencia por niño/a.
+- **Exportar PDF**: informe de grupo con logo y colores del programa, un resumen general (activos, archivados, días registrados y % de asistencia medio), la tabla de días/presente/ausente/% por niño/a con el porcentaje coloreado (verde ≥90%, ámbar ≥75%, rojo por debajo), y un apéndice con el detalle de las ausencias justificadas registradas y su motivo.
 - **Exportar Excel**: cuadrícula completa de asistencia día a día, lista para revisar o compartir.
+- **Ficha individual en PDF**: toca directamente sobre un niño/a en la lista para exportar solo su ficha (detalle día a día, sus ausencias justificadas y sus observaciones) — útil si necesitas compartir el informe de un único niño/a con su familia sin exponer al resto del grupo.
 
 ## 7. Copia de seguridad
 
@@ -74,6 +79,9 @@ En **Ajustes → Zona de peligro** puedes borrar todos los datos del dispositivo
 
 **¿Por qué no aparece un niño/a en la lista de asistencia de hoy?**
 Revisa su periodo de inscripción en la pestaña Niños: puede que ese día no esté dentro de su mes completo ni de sus semanas sueltas.
+
+**¿Cuándo debo archivar a un niño/a en vez de eliminarlo?**
+Prácticamente siempre que deje el grupo: archivar es reversible y conserva su historial y estadísticas. Elimínalo definitivamente solo si te has equivocado al crearlo o no quieres conservar ningún rastro suyo.
 
 **¿Puedo usar la app en varios dispositivos a la vez?**
 No en esta versión: los datos se guardan solo en el navegador del dispositivo donde se usa. Si varios monitores necesitan ver o editar los mismos datos, exporta e importa la copia de seguridad, o usa siempre el mismo dispositivo.

@@ -2,6 +2,21 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.2.0] — 2026-07-07
+
+### Cambiado — asistencia simplificada a 2 estados
+- Eliminado el estado "Justificado" como marca de asistencia independiente: en la práctica no aportaba nada distinto de "Ausente" a efectos de estadísticas. Ahora el ciclo de asistencia es Sin marcar → Presente → Ausente → Sin marcar.
+- El motivo de una ausencia (si se conoce) se sigue registrando en **Ausencias**, y aparece como nota informativa junto al niño/a — ya no como un color de estado aparte.
+- Migración automática de los días ya guardados con "Justificado" a "Ausente", sin perder ningún dato.
+- Historial, Estadísticas, exportación a PDF y a Excel actualizados al nuevo modelo de 2 estados.
+
+### Añadido
+- **Archivar niño/a** en vez de solo eliminar: saca al niño/a de "Niños" y "Hoy" pero conserva su historial de asistencia y sus estadísticas (antes, eliminar hacía invisibles esos datos aunque no se borraran). Filtro "Activos / Archivados" en la pestaña Niños, y opción de reactivar en cualquier momento. La eliminación permanente sigue disponible como acción secundaria, más discreta.
+- Aviso de nombre duplicado al guardar un niño/a.
+- **Compartir resumen del día**: nuevo botón en "Hoy" que junta asistencia, valoración y observaciones de todas las actividades en un único texto, listo para compartir por WhatsApp/email (o copiarlo si el dispositivo no soporta compartir).
+- **Ficha individual en PDF**: en Estadísticas, toca un niño/a para exportar su ficha con detalle día a día, sus ausencias justificadas y sus observaciones — útil para compartir con una sola familia sin exponer al resto del grupo.
+- **PDF de grupo mucho más cuidado**: logo del programa, colores de marca, resumen general (activos/archivados/días/% medio), tabla con el % de asistencia coloreado (verde ≥90%, ámbar ≥75%, rojo por debajo), apéndice con el detalle de ausencias justificadas y sus motivos, y pie de página con fecha de generación y número de página.
+
 ## [1.1.0] — 2026-07-07
 
 ### Añadido
