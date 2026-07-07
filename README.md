@@ -6,7 +6,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 
 - **Repo:** (pendiente de crear — repo privado recomendado, ver nota de privacidad más abajo)
 - **Grupo gestionado:** 2014 (curso de la Escuela de Verano 2026)
-- **Versión estable actual:** v1.0.10
+- **Versión estable actual:** v1.0.11
 
 ## 1. Qué hace
 
@@ -15,6 +15,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 - Valoración colectiva del día (1–5 estrellas + texto libre).
 - Actividades del día: nombre, notas rápidas del monitor, y un botón para generar la observación redactada con IA a partir de esas notas.
 - Fotos por actividad, con visor a tamaño completo y descarga individual.
+- Ausencias justificadas: sección de grupo con periodos (varios por niño/a) para avisos con antelación de que un niño/a va a faltar — no afecta a la asistencia real, que se sigue marcando a mano cada día.
 - Historial navegable por día, con filtro por mes.
 - Estadísticas de asistencia por niño/a y exportación a PDF y Excel.
 - Copia de seguridad manual en JSON (niños, asistencia, actividades — no incluye fotos).
@@ -46,6 +47,7 @@ Este proyecto nace como una adaptación de la arquitectura de [Kortline](https:/
 | `edv:cfg` | Nombre del programa, grupo, año, lema |
 | `edv:kids` | Lista de niños y niñas con su periodo de inscripción |
 | `edv:days` | Registro diario: asistencia, valoración colectiva, actividades y notas/observaciones |
+| `edv:ausencias` | Periodos de ausencia justificada (varios por niño/a) |
 | `edv:logo` | Logo del programa (base64) |
 | `edv:apikey` | Clave de API de Anthropic (ver aviso de seguridad) |
 | `edv:aimodel` | Modelo de IA seleccionado |
@@ -82,6 +84,7 @@ Esta app maneja nombres, asistencia y fotos de menores. Aunque los datos reales 
 | v1.0.7 | ✅ Publicada | Observaciones por niño/a, nombres en mayúsculas, fix crítico de nombre borrado en el modal |
 | v1.0.8 | ✅ Publicada | Botones de asistencia rediseñados (segmentado, estilo Kortline), rango de fechas para ausencias justificadas |
 | v1.0.9 | ✅ Publicada | Asistencia con un solo botón cíclico por niño/a (Sin marcar/Presente/Ausente/Justificado) |
-| v1.0.10 | ✅ Esta versión | Marcado masivo de asistencia (todos presentes/ausentes/justificados de golpe) |
+| v1.0.10 | ✅ Publicada | Marcado masivo de asistencia (todos presentes/ausentes/justificados de golpe) |
+| v1.0.11 | ✅ Esta versión | Sección "Ausencias" de grupo: varios periodos justificados por niño/a, fuera del alta del niño/a |
 | v1.1.0 | 💡 Idea | Gráficas de asistencia, gestión de varios grupos |
 | v2.0.0 | 💡 Idea | Backend ligero para sincronizar entre dispositivos del equipo de monitores |

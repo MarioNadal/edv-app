@@ -2,6 +2,12 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.11] — 2026-07-07
+
+### Cambiado
+- Las ausencias justificadas ya no se registran en la ficha de alta/edición de cada niño/a (que solo admitía un rango de fechas). Ahora viven en una sección de grupo nueva, "Ausencias", accesible desde la barra inferior, donde puedes añadir tantos periodos como haga falta por niño/a a lo largo del verano, ver su estado (Activa hoy / Próxima / Finalizada) y editarlos o borrarlos.
+- Migración automática: los rangos que ya tuvieran guardados los niños/as se trasladan solos a la nueva sección la primera vez que se abre esta versión, sin perder ningún dato.
+
 ## [1.0.10] — 2026-07-05
 
 ### Añadido

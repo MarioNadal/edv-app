@@ -17,13 +17,18 @@ En **Niños**, pulsa el botón `+`. Para cada uno indica:
 - Periodo de inscripción:
   - **Julio completo** / **Agosto completo**: actívalo si viene todos los días lectivos de ese mes.
   - **Semanas sueltas**: si no viene el mes entero, marca solo las semanas concretas en las que sí participa. No hace falta combinar esto con los interruptores de mes completo — usa una cosa u otra según el caso de cada niño/a.
-- **Ausencia justificada (opcional)**: si te dicen con antelación que un niño/a no va a venir durante un tiempo, pon la fecha "Desde" y/o "Hasta" que se sepan (puedes rellenar solo una de las dos si no conoces la otra). Se muestra como recordatorio 🟡 en la lista de Niños y junto a su nombre en la Asistencia de "Hoy" — la app no marca la asistencia sola, es solo un aviso para que no se te olvide y lo marques tú cada día.
 - **Observaciones**: para cualquier otro recordatorio o cambio puntual que te comenten (por ejemplo, "recogida solo por su madre", una alergia, etc.). Se muestra con 📌 tanto en la lista de Niños como junto a su nombre en la lista de Asistencia de "Hoy".
 - Foto (opcional).
 
-Puedes editar o eliminar a un niño/a en cualquier momento tocando su fila. Eliminarlo no borra los registros de asistencia ya guardados en días anteriores.
+Puedes editar o eliminar a un niño/a en cualquier momento tocando su fila. Eliminarlo no borra los registros de asistencia ya guardados en días anteriores, pero sí elimina sus ausencias justificadas pendientes (ver punto siguiente), ya que son avisos de cara al futuro.
 
-## 3. El día a día (pestaña "Hoy")
+## 3. Ausencias justificadas
+
+Si un niño/a avisa con antelación de que va a faltar un tiempo, apúntalo en la pestaña **Ausencias** (no en su ficha, para poder guardar varios periodos distintos a lo largo del verano si hace falta). Pulsa `+`, elige el niño/a y pon la fecha "Desde" y/o "Hasta" que se sepan (puedes rellenar solo una de las dos si no conoces la otra).
+
+Cada periodo se muestra con su estado — **Activa hoy**, **Próxima** o **Finalizada** — y aparece como recordatorio 🟡 tanto en la lista de Niños como junto al nombre en la Asistencia de "Hoy" (solo en los días dentro de ese rango). La app no marca la asistencia sola: es solo un aviso para que no se te olvide y la marques tú cada día con el botón de asistencia.
+
+## 4. El día a día (pestaña "Hoy")
 
 Al abrir la app verás el día de hoy. Usa las flechas `‹` `›` para moverte a otro día (por ejemplo, para completar un día que se te olvidó).
 
@@ -41,31 +46,31 @@ Si un día viene (o falta) todo el grupo, usa los botones "Marcar todo el grupo"
 
 La IA nunca inventa incidencias que no hayas escrito en las notas: solo redacta a partir de lo que le indiques.
 
-## 4. Historial
+## 5. Historial
 
 En **Historial** puedes ver todos los días registrados, con filtro por Julio/Agosto. Tocar un día te lleva directamente a su vista de "Hoy" para revisarlo o completarlo.
 
-## 5. Estadísticas y exportación
+## 6. Estadísticas y exportación
 
 En **Estadísticas** verás el porcentaje de asistencia de cada niño/a (calculado solo sobre los días en los que estaba inscrito). Desde ahí puedes:
 
 - **Exportar PDF**: informe resumen con días, presentes, ausentes, justificados y % de asistencia por niño/a.
 - **Exportar Excel**: cuadrícula completa de asistencia día a día, lista para revisar o compartir.
 
-## 6. Copia de seguridad
+## 7. Copia de seguridad
 
 En **Ajustes → Copia de seguridad**:
 
-- **Exportar copia de seguridad**: descarga un archivo `.json` con niños, asistencia y actividades (las fotos no se incluyen en este archivo, ya que se guardan aparte en el dispositivo).
+- **Exportar copia de seguridad**: descarga un archivo `.json` con niños, asistencia, actividades y ausencias justificadas (las fotos no se incluyen en este archivo, ya que se guardan aparte en el dispositivo).
 - **Restaurar desde copia de seguridad**: sustituye los datos actuales por los del archivo elegido. Úsalo con cuidado — es una sustitución completa, no una fusión.
 
 Se recomienda exportar una copia de seguridad al menos una vez por semana durante el verano.
 
-## 7. Borrar datos
+## 8. Borrar datos
 
-En **Ajustes → Zona de peligro** puedes borrar todos los datos del dispositivo (niños, asistencia, actividades y fotos). Pide confirmación dos veces porque no se puede deshacer.
+En **Ajustes → Zona de peligro** puedes borrar todos los datos del dispositivo (niños, asistencia, actividades, ausencias y fotos). Pide confirmación dos veces porque no se puede deshacer.
 
-## 8. Preguntas frecuentes
+## 9. Preguntas frecuentes
 
 **¿Por qué no aparece un niño/a en la lista de asistencia de hoy?**
 Revisa su periodo de inscripción en la pestaña Niños: puede que ese día no esté dentro de su mes completo ni de sus semanas sueltas.

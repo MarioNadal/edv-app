@@ -179,6 +179,10 @@ textarea.fi{min-height:80px;resize:vertical;line-height:1.5;}
 .kid-meta{font-size:11px;color:var(--td);margin-top:1px;}
 .kid-note{font-size:10.5px;color:var(--sun);font-weight:600;margin-top:3px;line-height:1.35;}
 .kid-note-just{color:var(--amber);}
+.au-estado{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;text-align:right;}
+.au-estado.activa{color:var(--amber);}
+.au-estado.proxima{color:var(--teal);}
+.au-estado.pasada{color:var(--td);}
 
 .att-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;}
 .att-row:last-child{border-bottom:none;}
@@ -276,7 +280,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================
-   EDV · Escuela de Verano de Jaca — v1.0.10
+   EDV · Escuela de Verano de Jaca — v1.0.11
    Single-file PWA. Sin backend. Datos en localStorage + IndexedDB (fotos).
    ============================================================ */
 
@@ -290,6 +294,7 @@ let S = {
   cfg: lsGet('cfg', {nombre:'EDV', grupo:'2014', anio:2026, lema:'Escuela de Verano de Jaca'}),
   kids: lsGet('kids', []),
   days: lsGet('days', {}),
+  ausencias: lsGet('ausencias', []),   // [{id, kidId, desde, hasta}] — periodos de ausencia justificada
   fecha: todayISO(),
   histMesFiltro: 'todos',
   modal: null,       // {tipo, ...datos}
@@ -308,9 +313,28 @@ let S = {
   if(cambiado) saveKids();
 })();
 
+// Migración: las ausencias justificadas (antes un único rango por niño/a,
+// guardado como k.justDesde/k.justHasta) pasan a vivir en S.ausencias como
+// periodos independientes, para poder tener varios por niño/a a lo largo
+// del verano. Se traslada el rango existente (si lo hubiera) y se elimina
+// del propio niño/a.
+(function migrarAusenciasJustificadas(){
+  let cambiadoKids = false, cambiadoAus = false;
+  S.kids.forEach(k=>{
+    if(k.justDesde || k.justHasta){
+      S.ausencias.push({id: uid(), kidId: k.id, desde: k.justDesde||'', hasta: k.justHasta||''});
+      delete k.justDesde; delete k.justHasta;
+      cambiadoKids = true; cambiadoAus = true;
+    }
+  });
+  if(cambiadoKids) saveKids();
+  if(cambiadoAus) saveAusencias();
+})();
+
 function saveCfg(){ lsSet('cfg', S.cfg); }
 function saveKids(){ lsSet('kids', S.kids); }
 function saveDays(){ lsSet('days', S.days); }
+function saveAusencias(){ lsSet('ausencias', S.ausencias); }
 
 // ── IndexedDB para fotos (evita saturar localStorage) ─────────
 const _dbPromise = new Promise((resolve, reject)=>{
@@ -418,13 +442,34 @@ function fmtFechaEs(iso){
   const d = new Date(iso+'T00:00:00');
   return d.toLocaleDateString('es-ES',{weekday:'long', day:'numeric', month:'long'});
 }
-// Texto de recordatorio para una ausencia justificada con fechas (opcionales)
-function formatJustRange(k){
-  if(!k || (!k.justDesde && !k.justHasta)) return '';
+// ── Ausencias justificadas (periodos por niño/a, independientes del alta) ──
+function ausenciasDeNino(kidId){
+  return S.ausencias.filter(a=>a.kidId===kidId).sort((a,b)=>(a.desde||'').localeCompare(b.desde||''));
+}
+// ¿Hay una ausencia justificada activa para este niño/a en esta fecha concreta?
+function ausenciaEnFecha(kidId, iso){
+  return S.ausencias.find(a=>{
+    if(a.kidId!==kidId) return false;
+    if(a.desde && iso<a.desde) return false;
+    if(a.hasta && iso>a.hasta) return false;
+    return true;
+  }) || null;
+}
+// Para vistas no ligadas a un día concreto (p. ej. "Niños"): la ausencia activa
+// hoy, o si no hay ninguna activa, la próxima que empiece.
+function ausenciaProximaOActiva(kidId){
+  const hoy = todayISO();
+  const activa = ausenciaEnFecha(kidId, hoy);
+  if(activa) return activa;
+  const futuras = ausenciasDeNino(kidId).filter(a=>a.desde && a.desde>hoy);
+  return futuras.length ? futuras[0] : null;
+}
+function formatAusencia(a){
+  if(!a) return '';
   const f = iso => fmtDDMM(new Date(iso+'T00:00:00Z'));
-  if(k.justDesde && k.justHasta) return `Justificado del ${f(k.justDesde)} al ${f(k.justHasta)}`;
-  if(k.justHasta) return `Justificado hasta el ${f(k.justHasta)}`;
-  return `Justificado desde el ${f(k.justDesde)}`;
+  if(a.desde && a.hasta) return `Justificado del ${f(a.desde)} al ${f(a.hasta)}`;
+  if(a.hasta) return `Justificado hasta el ${f(a.hasta)}`;
+  return `Justificado desde el ${f(a.desde)}`;
 }
 
 // ── Modelo: ¿un niño está inscrito en una fecha? ───────────────
@@ -502,7 +547,7 @@ function render(){
 
 function renderHeader(){
   const logo = localStorage.getItem(LSP+'logo') || _EDV_ICON;
-  const titles = {hoy:'Hoy', ninos:'Niños y niñas', historial:'Historial', estadisticas:'Estadísticas', ajustes:'Ajustes'};
+  const titles = {hoy:'Hoy', ninos:'Niños y niñas', ausencias:'Ausencias justificadas', historial:'Historial', estadisticas:'Estadísticas', ajustes:'Ajustes'};
   return `<div class="header"><div class="hrow">
     <img class="hlogo" src="${logo}">
     <div style="flex:1">
@@ -516,6 +561,7 @@ function renderNav(){
   const items = [
     {v:'hoy', i:'📋', l:'Hoy'},
     {v:'ninos', i:'🧒', l:'Niños'},
+    {v:'ausencias', i:'🟡', l:'Ausenc.'},
     {v:'historial', i:'📅', l:'Historial'},
     {v:'estadisticas', i:'📊', l:'Stats'},
     {v:'ajustes', i:'⚙️', l:'Ajustes'},
@@ -531,6 +577,7 @@ function setView(v){ S.view=v; S.modal=null; render(); }
 function renderContent(){
   if(S.view==='hoy') return renderHoy();
   if(S.view==='ninos') return renderNinos();
+  if(S.view==='ausencias') return renderAusencias();
   if(S.view==='historial') return renderHistorial();
   if(S.view==='estadisticas') return renderEstadisticas();
   if(S.view==='ajustes') return renderAjustes();
@@ -595,10 +642,11 @@ function renderHoy(){
     ninos.forEach(k=>{
       const est = day.asistencia[k.id] || null;
       const einfo = attEstadoInfo(est);
+      const ausHoy = ausenciaEnFecha(k.id, iso);
       html += `<div class="att-row">
         <div class="att-name">
           <div class="att-name-txt">${esc(k.nombre)}</div>
-          ${formatJustRange(k)?`<div class="att-note att-note-just">🟡 ${formatJustRange(k)}</div>`:''}
+          ${ausHoy?`<div class="att-note att-note-just">🟡 ${formatAusencia(ausHoy)}</div>`:''}
           ${k.obs?`<div class="att-note">📌 ${esc(k.obs)}</div>`:''}
         </div>
         <button class="att-cycle ${einfo.cls}" onclick="ciclarAsistencia('${k.id}')">${einfo.label}</button>
@@ -894,12 +942,13 @@ function renderNinos(){
       if(k.agostoCompleto) meta.push('Agosto completo');
       if(semanas>0) meta.push(semanas+' semana(s) suelta(s)');
       if(meta.length===0) meta.push('Sin periodo asignado');
+      const ausInfo = ausenciaProximaOActiva(k.id);
       html += `<div class="kid-row" onclick="abrirModalNino('${k.id}')">
         <div class="kid-avatar">${k.foto?`<img src="${k.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:esc((k.nombre||'?')[0].toUpperCase())}</div>
         <div style="flex:1">
           <div class="kid-name">${esc(k.nombre)}</div>
           <div class="kid-meta">${meta.join(' · ')}</div>
-          ${formatJustRange(k)?`<div class="kid-note kid-note-just">🟡 ${formatJustRange(k)}</div>`:''}
+          ${ausInfo?`<div class="kid-note kid-note-just">🟡 ${formatAusencia(ausInfo)}</div>`:''}
           ${k.obs?`<div class="kid-note">📌 ${esc(k.obs)}</div>`:''}
         </div>
         <div style="color:var(--td)">›</div>
@@ -913,7 +962,7 @@ function renderNinos(){
 }
 
 function abrirModalNino(kidId){
-  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null, obs:'', justDesde:'', justHasta:''};
+  const kid = kidId ? S.kids.find(k=>k.id===kidId) : {id:null, nombre:'', julioCompleto:false, agostoCompleto:false, semanas:[], foto:null, obs:''};
   S.modal = {tipo:'nino', kid: JSON.parse(JSON.stringify(kid))};
   render();
 }
@@ -945,11 +994,90 @@ function guardarNino(){
 }
 function borrarNino(){
   if(!confirm('¿Eliminar a este niño o niña? No se borrarán los registros de asistencia ya guardados.')) return;
-  S.kids = S.kids.filter(k=>k.id!==S.modal.kid.id);
+  const kidId = S.modal.kid.id;
+  S.kids = S.kids.filter(k=>k.id!==kidId);
   saveKids();
+  // Las ausencias justificadas son recordatorios de cara al futuro, no
+  // registros históricos, así que sí se eliminan al borrar el niño/a.
+  S.ausencias = S.ausencias.filter(a=>a.kidId!==kidId);
+  saveAusencias();
   S.modal=null; render();
 }
 function subirFotoNino(){ document.getElementById('fileKidPhoto').click(); }
+
+// ================= VISTA: AUSENCIAS =================
+// Periodos de ausencia justificada, independientes del alta de cada niño/a:
+// un niño/a puede tener varios a lo largo del verano. Es solo un recordatorio
+// — la asistencia real del día se sigue marcando a mano en "Hoy".
+function renderAusencias(){
+  let html = `<div class="content">`;
+  const hoy = todayISO();
+  const items = S.ausencias.slice().sort((a,b)=>(a.desde||'').localeCompare(b.desde||''));
+
+  html += `<div class="msub" style="margin-bottom:14px">Registra aquí los periodos en los que un niño/a avisa con antelación de que va a faltar. Puedes añadir tantos periodos como haga falta por niño/a.</div>`;
+
+  if(items.length===0){
+    html += `<div class="empty"><div class="ei">🟡</div>No hay ausencias justificadas registradas.</div>`;
+  } else {
+    html += `<div class="card">`;
+    items.forEach(a=>{
+      const kid = S.kids.find(k=>k.id===a.kidId);
+      const nombre = kid ? kid.nombre : '(niño/a eliminado)';
+      const activa = (!a.hasta || hoy<=a.hasta) && (!a.desde || hoy>=a.desde);
+      const proxima = !activa && a.desde && hoy<a.desde;
+      const estadoCls = activa?'activa':(proxima?'proxima':'pasada');
+      const estadoTxt = activa?'Activa hoy':(proxima?'Próxima':'Finalizada');
+      html += `<div class="kid-row" onclick="abrirModalAusencia('${a.id}')">
+        <div class="kid-avatar">🟡</div>
+        <div style="flex:1">
+          <div class="kid-name">${esc(nombre)}</div>
+          <div class="kid-meta">${formatAusencia(a)}</div>
+        </div>
+        <div class="au-estado ${estadoCls}">${estadoTxt}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  html += `<button class="fab" onclick="abrirModalAusencia(null)">+</button>`;
+  html += `</div>`;
+  return html;
+}
+function abrirModalAusencia(id){
+  if(id){
+    const a = S.ausencias.find(x=>x.id===id);
+    if(!a) return;
+    S.modal = {tipo:'ausencia', id:a.id, kidId:a.kidId, desde:a.desde||'', hasta:a.hasta||''};
+  } else {
+    if(S.kids.length===0){ toast('Añade primero un niño o niña'); return; }
+    const primero = S.kids.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'))[0];
+    S.modal = {tipo:'ausencia', id:null, kidId:primero.id, desde:'', hasta:''};
+  }
+  render();
+}
+function guardarAusencia(){
+  const m = S.modal;
+  const kidId = document.getElementById('m-aus-kid').value;
+  if(!kidId){ toast('Elige un niño o niña'); return; }
+  const desde = m.desde || '';
+  const hasta = m.hasta || '';
+  if(!desde && !hasta){ toast('Indica al menos una fecha (desde o hasta)'); return; }
+  if(desde && hasta && desde>hasta){ toast('La fecha "Desde" no puede ser posterior a "Hasta"'); return; }
+  if(m.id){
+    const a = S.ausencias.find(x=>x.id===m.id);
+    a.kidId = kidId; a.desde = desde; a.hasta = hasta;
+  } else {
+    S.ausencias.push({id:uid(), kidId, desde, hasta});
+  }
+  saveAusencias();
+  S.modal=null; render();
+  toast('Guardado');
+}
+function borrarAusencia(id){
+  if(!confirm('¿Eliminar este periodo de ausencia justificada?')) return;
+  S.ausencias = S.ausencias.filter(a=>a.id!==id);
+  saveAusencias();
+  S.modal=null; render();
+}
 
 // ================= VISTA: HISTORIAL =================
 function renderHistorial(){
@@ -1157,7 +1285,7 @@ function guardarAjustesIA(){
   toast('Configuración de IA guardada');
 }
 function exportarBackupJSON(){
-  const backup = {version:1, exportado: new Date().toISOString(), cfg:S.cfg, kids:S.kids, days:S.days};
+  const backup = {version:1, exportado: new Date().toISOString(), cfg:S.cfg, kids:S.kids, days:S.days, ausencias:S.ausencias};
   const blob = new Blob([JSON.stringify(backup,null,2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1221,21 +1349,35 @@ function renderModal(){
       <div class="week-grid">
         ${semanasSueltas.map(s=>`<div class="week-chip ${(k.semanas||[]).includes(s.key)?'on':''}" onclick="toggleModalNinoSemana('${s.key}')">${s.mes==='julio'?'JUL':'AGO'} ${s.label}</div>`).join('')}
       </div>` : ''}
-      <div class="fl" style="margin:14px 0 8px">Ausencia justificada (opcional, si se sabe)</div>
-      <div class="frow">
-        <div class="fg"><label class="fl">Desde</label>
-          <input class="fi" type="date" id="m-nino-justdesde" value="${k.justDesde||''}" oninput="S.modal.kid.justDesde=this.value">
-        </div>
-        <div class="fg"><label class="fl">Hasta</label>
-          <input class="fi" type="date" id="m-nino-justhasta" value="${k.justHasta||''}" oninput="S.modal.kid.justHasta=this.value">
-        </div>
-      </div>
-      <div class="fg">
+      <div class="fg" style="margin-top:14px">
         <label class="fl">Observaciones</label>
         <textarea class="fi" id="m-nino-obs" placeholder="Ej: no vendrá hasta el día 15, recogida solo por su madre, alergia a los frutos secos..." oninput="S.modal.kid.obs=this.value">${esc(k.obs)}</textarea>
       </div>
       <button type="button" class="btn-p" onclick="guardarNino()">Guardar</button>
       ${k.id?`<button type="button" class="btn-d" onclick="borrarNino()">Eliminar niño/a</button>`:''}
+      <button type="button" class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
+  }
+
+  if(m.tipo==='ausencia'){
+    const kidsOrd = S.kids.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+    inner = `<div class="mhandle"></div>
+      <div class="mtitle">${m.id?'Editar':'Nuevo'} periodo de ausencia</div>
+      <div class="msub">Es solo un recordatorio: la asistencia del día se sigue marcando a mano en «Hoy».</div>
+      <div class="fg"><label class="fl">Niño/a</label>
+        <select class="fi" id="m-aus-kid" onchange="S.modal.kidId=this.value">
+          ${kidsOrd.map(k=>`<option value="${k.id}" ${m.kidId===k.id?'selected':''}>${esc(k.nombre)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Desde</label>
+          <input class="fi" type="date" id="m-aus-desde" value="${m.desde||''}" oninput="S.modal.desde=this.value">
+        </div>
+        <div class="fg"><label class="fl">Hasta</label>
+          <input class="fi" type="date" id="m-aus-hasta" value="${m.hasta||''}" oninput="S.modal.hasta=this.value">
+        </div>
+      </div>
+      <button type="button" class="btn-p" onclick="guardarAusencia()">Guardar</button>
+      ${m.id?`<button type="button" class="btn-d" onclick="borrarAusencia('${m.id}')">Eliminar periodo</button>`:''}
       <button type="button" class="btn-s" onclick="cerrarModal()">Cancelar</button>`;
   }
 
@@ -1320,7 +1462,8 @@ document.getElementById('fileImportJson').addEventListener('change', function(e)
       S.cfg = data.cfg || S.cfg;
       S.kids = data.kids || [];
       S.days = data.days || {};
-      saveCfg(); saveKids(); saveDays();
+      S.ausencias = data.ausencias || [];
+      saveCfg(); saveKids(); saveDays(); saveAusencias();
       render(); toast('Datos restaurados');
     }catch(err){ toast('Archivo inválido'); }
   };
